@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Frontend (ver também frontend/.gitignore)
+node_modules/
+frontend/dist/
+*.tar.gz
+
+# Caches da aplicação (consultas, EOP, conjuntos de elementos)
+/dados/
+
+# Configuração local de instalação (locais e radares reais ficam fora do git)
+/config/local/
+.env
