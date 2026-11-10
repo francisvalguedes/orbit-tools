@@ -31,7 +31,27 @@ npm run dev               # http://localhost:5173
 
 ## Uso como biblioteca
 
-O núcleo de cálculo (`orbit_tools.core`) depende só de `numpy` e `sgp4` e pode ser usado em scripts sem a parte web.
+O núcleo de cálculo (`orbit_tools.core`) depende só de `numpy` e `sgp4` e pode ser usado em scripts sem a parte web. Exemplo: passagens de um dia sobre um sensor.
+
+```python
+import numpy as np
+from orbit_tools.core import elements, passes
+from orbit_tools.core.eop import EOP
+from orbit_tools.core.geodesy import GeodeticPoint
+
+recs = elements.parse(open("elementos.csv", "rb").read(), "elementos.csv")  # OMM (CSV, JSON, XML) ou TLE
+sensor = GeodeticPoint(lat=-10.0, lon=-40.0, height=0.0)
+params = passes.SearchParams(
+    start=np.datetime64("2026-11-11T00:00:00"),
+    end=np.datetime64("2026-11-12T00:00:00"),
+    d_max_m=1100e3,
+    d_min_m=1000e3,
+)
+for p in passes.search(recs, sensor, params, EOP.zero()):
+    print(p.norad, p.h0, f"{p.min_range_m / 1000:.1f} km", f"{p.max_el_deg:.1f}°")
+```
+
+`EOP.zero()` dispensa o arquivo de orientação da Terra (erro de 20 a 40 m num LEO); com `eop.parse_finals2000a(texto)` sobre o `finals2000A.all` do IERS, o resultado coincide com o astropy a 2 cm. Modelos, validação e diferenças em relação aos apps antigos: [docs/calculo.md](docs/calculo.md).
 
 ## Licença
 

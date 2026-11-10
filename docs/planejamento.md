@@ -215,7 +215,7 @@ Ficam no navegador, com importação e exportação em CSV (mesmo formato do `co
 | 1 | `orbit_propag` ignora o `error_code` do SGP4: objetos que decaem geram posições inválidas | Descartar amostras com erro e marcar a passagem |
 | 2 | Passagens já em andamento no início da janela, ou que terminam depois do fim, são perdidas sem aviso | Opção "incluir passagens cortadas pela janela", com marcação |
 | 3 | Filtro por perigeu só quando a coluna `PERIAPSIS` existe (Space-Track) | Calcular o perigeu dos elementos |
-| 4 | A distância mínima é a menor amostra, com resolução da taxa de H0 | Refinar o mínimo por interpolação parabólica |
+| 4 | A distância mínima é a menor amostra, com resolução da taxa de H0 | Avaliado na fase 1: o refinamento mudaria o valor em até ~12 m a 500 km; mantido como no app antigo |
 | 5 | Aceleração do conversor com `np.gradient` duas vezes (usa os pontos i±2) | `kinematics.derivatives` do trajetory-analysis (pontos i±1) |
 | 6 | `dd_to_dms_string` pode gerar `60.000000"` (ex.: 10,9999999999°) | Arredondar antes de separar graus, minutos e segundos |
 | 7 | Número de pontos a 100 Hz `round(END_PT / taxa)` não inclui o ponto final | De H0 até HF inclusive, documentado |
@@ -223,6 +223,7 @@ Ficam no navegador, com importação e exportação em CSV (mesmo formato do `co
 | 9 | O cadastro "definitivo" de locais grava no CSV do servidor, visível a todos | Locais no navegador (4.6) |
 | 10 | Cache do Celestrak gravado dentro da pasta do código | Cache em `ORBIT_DATA_DIR` |
 | 11 | Senha do proxy em `conf.json` | Variáveis de ambiente padrão (`HTTPS_PROXY`) |
+| 12 | ECEF → geodésicas do pymap3d perde precisão com a altitude (5 cm a 1 600 km, ~80 m em GEO); encontrado na fase 1 | Solução fechada de Vermeille, exata em qualquer altitude (já no `geodesy.py`) |
 
 As diferenças de resultado que essas correções causam ficam listadas em `docs/` e nos testes de paridade (cada teste diz se espera igualdade ou a diferença documentada).
 
@@ -256,7 +257,7 @@ Cada fase termina com testes, ruff, oxlint e build sem erros, e com o app rodand
 
 **Fase 0. Esqueleto.** `git init`, `main`/`develop`, `.gitignore`, licença MIT, `backend/` com uv (ruff, pytest, `/api/meta`), `frontend/` com Vite e a base visual do trajetory-analysis com os quatro módulos vazios, `CLAUDE.md`, `README.md`, GitHub Actions.
 
-**Fase 1. Núcleo de cálculo.** `time`, `eop`, `frames`, `geodesy`, `kinematics`, `elements`, `propagation`, `passes`, `radar`, `compare`, `formats`; script de referências do app antigo; testes de paridade. Ao fim, o núcleo já é usável como biblioteca.
+**Fase 1. Núcleo de cálculo** (concluída). `time`, `eop`, `frames`, `geodesy`, `kinematics`, `elements`, `propagation`, `passes`, `radar`, `compare`, `formats`; script de referências do app antigo; testes de paridade. Resultados e diferenças documentadas em [calculo.md](calculo.md).
 
 **Fase 2. Conversões** (API e interface). Valida a base do frontend com a parte mais simples.
 

@@ -6,7 +6,7 @@ Orientações para sessões do Claude Code neste repositório.
 
 Aplicação web open source de elementos orbitais, passagens sobre sensores, trajetórias para rastreio e conversões de coordenadas. Público principal: CLBI e CLA. Substitui os apps Streamlit `TrajectoryOrbitPropag` e `trajectory-coordinate-converter`, que são a referência de cálculo (paridade), mas não de organização.
 
-Antes de decisões de arquitetura, ler [docs/planejamento.md](docs/planejamento.md) (decisões, módulos, fases e os testes que as justificam).
+Antes de decisões de arquitetura, ler [docs/planejamento.md](docs/planejamento.md) (decisões, módulos, fases e os testes que as justificam). Antes de mexer no cálculo, ler [docs/calculo.md](docs/calculo.md) (modelos, validação e diferenças em relação aos apps antigos).
 
 ## Estrutura
 
@@ -46,7 +46,7 @@ Antes de considerar uma tarefa concluída: testes, ruff, lint e build sem erros.
 - **Comentários:** poucos, explicando o porquê.
 - **Python:** ruff com linha de 120; funções do núcleo vetorizadas com numpy e sem alterar os arrays de entrada.
 - **Servidor sem estado:** o navegador guarda os dados do usuário (elementos, locais, radares, seleções); o servidor só calcula e mantém caches com validade em `ORBIT_DATA_DIR`. Cálculos longos respondem em fluxo (NDJSON).
-- **Paridade:** mudanças de cálculo mantêm os testes de paridade com os apps antigos ou documentam a diferença.
+- **Paridade:** mudanças de cálculo mantêm os testes de paridade com os apps antigos ou documentam a diferença em `docs/calculo.md`. As referências (`backend/tests/data/legacy/`) são geradas por `backend/tests/legacy/gen_orbit_refs.py` no ambiente do app antigo; não editar à mão.
 - **Formatos de rastreio:** `.trn` e `.trj` idênticos aos do app antigo, com H0 no nome do arquivo; os sistemas de rastreio do CLBI e do CLA dependem disso.
 - **Números na interface:** espaço fino nos milhares e ponto decimal (`fmtNum` em `frontend/src/lib/format.ts`).
 - **Cesium e Plotly:** carregados sob demanda (`React.lazy`), nunca no carregamento inicial.
