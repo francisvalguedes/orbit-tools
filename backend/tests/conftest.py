@@ -6,6 +6,9 @@ from pathlib import Path
 # em segundo plano (que acessaria a rede para baixar o EOP)
 os.environ["ORBIT_DATA_DIR"] = tempfile.mkdtemp(prefix="orbit-tools-testes-")
 os.environ["ORBIT_MAINTENANCE"] = "false"
+# Locais e radares da máquina de quem roda os testes (config/local/) não entram nos testes
+os.environ["ORBIT_SITES_CSV"] = os.path.join(os.environ["ORBIT_DATA_DIR"], "sem-locais.csv")
+os.environ["ORBIT_RADARS_CSV"] = os.path.join(os.environ["ORBIT_DATA_DIR"], "sem-radares.csv")
 
 import pytest
 

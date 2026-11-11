@@ -44,6 +44,15 @@ Ajustar elementos aos dados dos radares do CLBI e do CLA (correção diferencial
 - **Propagação numérica de alta precisão** (Orekit e similares): só melhora o resultado com um estado inicial preciso, que o catálogo público não fornece. Voltaria a fazer sentido junto com a determinação de órbita.
 - **SGP4-XP** (Força Espacial dos EUA): mais preciso, mas a biblioteca é distribuída só como binário fechado e os elementos têm disponibilidade restrita. Incompatível com um projeto open source.
 
+## WGS72 nas conversões
+
+Hoje o app usa só WGS84, como o conversor antigo. Oferecer WGS72 exige as coordenadas de cada local levantadas nesse elipsoide (o mesmo ponto físico tem latitude, longitude e altura diferentes em cada um). Proposta, se for preciso:
+
+- Coluna opcional `ellipsoid` nos CSVs de `config/local/` e na importação de locais, uma linha por local e elipsoide; sem a coluna, WGS84 (os arquivos atuais continuam válidos).
+- Nas Conversões, os locais sem coordenadas no elipsoide escolhido aparecem desabilitados, em vez de reaproveitar as do outro.
+- Passagens e Órbita continuam em WGS84.
+- O `geodesy.py` já suporta WGS72 e está testado contra o pymap3d.
+
 ## Desempenho
 
 - **Refinamento das passagens vetorizado:** na busca do catálogo LEO inteiro (16 mil objetos, 1 dia, 16,5 s), boa parte do tempo está no refinamento de cada passagem, feito em laço Python. Dá para refinar todas as bordas de uma vez.

@@ -17,7 +17,7 @@ import { IconChartLine, IconDownload, IconFileUpload, IconTable, IconWorld } fro
 import { useMutation } from '@tanstack/react-query'
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { api } from '../../api/client'
-import type { ConvertPointsRequest, Ellipsoid, KinematicsRequest, KinematicsResponse, Series, Site } from '../../api/types'
+import type { ConvertPointsRequest, KinematicsRequest, KinematicsResponse, Series, Site } from '../../api/types'
 import { download, toCsv } from '../../lib/csv'
 import { fmtNum } from '../../lib/format'
 import { SiteSelect } from '../../sites/SiteSelect'
@@ -57,7 +57,7 @@ function maxAbs(s: Series): number | null {
   return m
 }
 
-export function KinematicsTab({ ellipsoid }: { ellipsoid: Ellipsoid }) {
+export function KinematicsTab() {
   const [traj, setTraj] = useState<Trajectory | null>(null)
   const [source, setSource] = useState<Site | null>(null)
   const [target, setTarget] = useState<Site | null>(null)
@@ -83,7 +83,7 @@ export function KinematicsTab({ ellipsoid }: { ellipsoid: Ellipsoid }) {
     if (!traj) return setError('Carregue uma trajetória.')
     if (!source) return setError('Escolha o local de origem da trajetória.')
     setError(null)
-    mutation.mutate({ x: traj.x, y: traj.y, z: traj.z, step_s: step, source, target, ellipsoid, length_unit: unit })
+    mutation.mutate({ x: traj.x, y: traj.y, z: traj.z, step_s: step, source, target, length_unit: unit })
   }
 
   const columns = useMemo<ResultColumn[]>(
@@ -223,7 +223,7 @@ export function KinematicsTab({ ellipsoid }: { ellipsoid: Ellipsoid }) {
                 <ResultTable columns={columns} />
               </Tabs.Panel>
               <Tabs.Panel value="globe">
-                {frame && <TrajectoryGlobe result={result} frame={frame} source={source} target={target} ellipsoid={ellipsoid} />}
+                {frame && <TrajectoryGlobe result={result} frame={frame} source={source} target={target} />}
               </Tabs.Panel>
             </Suspense>
           </Tabs>
@@ -239,9 +239,8 @@ function TrajectoryGlobe(props: {
   frame: Site
   source: Site | null
   target: Site | null
-  ellipsoid: Ellipsoid
 }) {
-  const { result, frame, source, target, ellipsoid } = props
+  const { result, frame, source, target } = props
   const geo = useMutation({ mutationFn: (req: ConvertPointsRequest) => api.convert.points(req) })
   const { mutate } = geo
   useEffect(() => {
@@ -249,14 +248,13 @@ function TrajectoryGlobe(props: {
       system: 'enu',
       reference: frame,
       outputs: [],
-      ellipsoid,
       length_unit: 'm',
       angle_unit: 'deg',
       a: result.e as number[],
       b: result.n as number[],
       c: result.u as number[],
     })
-  }, [mutate, result, frame, ellipsoid])
+  }, [mutate, result, frame])
   if (!geo.data) return <Loading />
   const sites = [source, target].filter((s): s is Site => s != null)
   return <PointsGlobe lat={geo.data.lat} lon={geo.data.lon} height={geo.data.height} sites={sites} line />

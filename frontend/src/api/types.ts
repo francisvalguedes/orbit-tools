@@ -1,7 +1,6 @@
 // Espelho manual de backend/src/orbit_tools/api/schemas.py: ao mudar um, mudar o outro.
 
 export type Series = (number | null)[]
-export type Ellipsoid = 'wgs84' | 'wgs72'
 
 export interface Site {
   name: string
@@ -28,7 +27,9 @@ export interface Meta {
   version: string
   sites: Site[]
   radars: Radar[]
-  sites_source: string
+  sites_source: string // "exemplos" ou o caminho de config/local/locais.csv
+  radars_source: string
+  config_errors: string[] // erros nos arquivos de config/local (o app usa os exemplos)
   limits: {
     max_points: number
     max_elements: number
@@ -51,7 +52,6 @@ export interface ConvertPointsRequest {
   system: CoordinateSystem
   reference?: Site | null
   outputs: Site[]
-  ellipsoid: Ellipsoid
   length_unit: 'm' | 'km'
   angle_unit: 'deg' | 'rad'
   a: number[]
@@ -100,7 +100,6 @@ export interface KinematicsRequest {
   step_s: number
   source: Site
   target?: Site | null
-  ellipsoid: Ellipsoid
   length_unit: 'm' | 'km'
 }
 

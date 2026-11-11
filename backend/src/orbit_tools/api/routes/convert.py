@@ -4,6 +4,7 @@ import numpy as np
 from fastapi import APIRouter, HTTPException
 
 from ...core.geodesy import (
+    WGS84,
     GeodeticPoint,
     LocalFrame,
     aer_to_enu,
@@ -13,7 +14,6 @@ from ...core.geodesy import (
     ecef_to_geodetic,
     enu_to_aer,
     geodetic_to_ecef,
-    get_ellipsoid,
 )
 from ...core.kinematics import derivatives
 from ...settings import settings
@@ -47,7 +47,7 @@ def _point(site: Site) -> GeodeticPoint:
 @router.post("/points", response_model=ConvertPointsResponse)
 def convert_points(req: ConvertPointsRequest) -> ConvertPointsResponse:
     _check_size(len(req.a))
-    ell = get_ellipsoid(req.ellipsoid)
+    ell = WGS84
     scale = LENGTH[req.length_unit]
     a, b, c = (np.asarray(v, dtype=float) for v in (req.a, req.b, req.c))
 
@@ -117,7 +117,7 @@ def convert_dms(req: DmsRequest) -> DmsResponse:
 @router.post("/kinematics", response_model=KinematicsResponse)
 def kinematics(req: KinematicsRequest) -> KinematicsResponse:
     _check_size(len(req.x))
-    ell = get_ellipsoid(req.ellipsoid)
+    ell = WGS84
     enu = np.column_stack([req.x, req.y, req.z]) * LENGTH[req.length_unit]
     if req.target is not None:
         enu = LocalFrame(_point(req.target), ell).from_ecef(LocalFrame(_point(req.source), ell).to_ecef(enu))

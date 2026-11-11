@@ -91,7 +91,7 @@ No systemd, um comentário no fim de uma linha vira parte do valor: deixe os com
 
 | Variável | Uso |
 |---|---|
-| `ORBIT_SITES_FILE` | Locais e radares oferecidos a todos os usuários, no lugar dos exemplos fictícios (abaixo) |
+| `ORBIT_SITES_CSV`, `ORBIT_RADARS_CSV` | Só para guardar os locais e radares da instalação fora de `config/local/` (abaixo) |
 | `HTTPS_PROXY`, `NO_PROXY` | Proxy para Celestrak, Space-Track e IERS |
 | `ORBIT_DATA_DIR` | Pasta de dados (padrão `/opt/apps/orbit-tools/dados`) |
 | `ORBIT_MAX_SEARCH_DAYS` | Janela máxima da busca de passagens, em dias (padrão 10) |
@@ -101,26 +101,18 @@ No systemd, um comentário no fim de uma linha vira parte do valor: deixe os com
 
 ### Locais e radares da instalação
 
-Por padrão, todos os usuários veem dois locais e um radar fictícios. Para oferecer os locais e radares reais (rampas, sensores) a todos, crie um JSON fora do repositório e aponte `ORBIT_SITES_FILE` para ele:
-
-```json
-{
-  "sites": [
-    { "name": "SENSOR-1", "lat": -5.92, "lon": -35.26, "height": 102.5 }
-  ],
-  "radars": [
-    { "name": "RADAR-1", "pt": 60.0, "gt": 42.0, "gr": 42.0, "lt": 1.4, "lr": 1.6, "fhz": 5400.0, "sr": -140.0, "snr": 0.0, "spt": 0.01 }
-  ]
-}
-```
+Por padrão, todos os usuários veem dois locais e um radar fictícios. Os reais (rampas, sensores, radares) ficam em `config/local/locais.csv` e `config/local/radares.csv`, no formato do `confLocalWGS84.csv` e do `confRadar.csv` dos apps antigos. A pasta `config/local/` está no `.gitignore` e o `git pull` não mexe nela. Detalhes do formato em [config/README.md](../config/README.md).
 
 ```bash
-sudo install -m 644 sites.json /etc/orbit-tools/sites.json
-echo 'ORBIT_SITES_FILE=/etc/orbit-tools/sites.json' | sudo tee -a /etc/orbit-tools/orbit-tools.env
+cd /opt/apps/orbit-tools
+sudo -u orbittools mkdir -p config/local
+sudo -u orbittools cp config/locais.exemplo.csv config/local/locais.csv     # ou copie o seu confLocalWGS84.csv
+sudo -u orbittools cp config/radares.exemplo.csv config/local/radares.csv   # ou o seu confRadar.csv
+sudo -u orbittools nano config/local/locais.csv
 sudo systemctl restart orbit-tools
 ```
 
-Coordenadas geodésicas em graus decimais (sul e oeste negativos) e altura acima do elipsoide em metros. Os locais e radares que cada usuário cadastra na interface ficam só no navegador dele.
+O servidor lê os arquivos ao iniciar: reinicie depois de editar. Se um arquivo tiver erro, o app usa os exemplos e mostra o erro (linha e motivo) num aviso na interface e no log (`journalctl -u orbit-tools`). Os locais e radares que cada usuário cadastra na interface ficam só no navegador dele.
 
 ## Atualização
 
@@ -182,6 +174,6 @@ sudo systemctl restart orbit-tools
 
 ## Uso no CLBI e no CLA
 
-- **Dados restritos:** nada específico das instalações vai para o repositório. As coordenadas reais ficam no `ORBIT_SITES_FILE`, em `/etc/orbit-tools/`.
+- **Dados restritos:** nada específico das instalações vai para o repositório. As coordenadas reais ficam em `config/local/` (no `.gitignore`).
 - **Space-Track:** a senha do usuário vai só na consulta e não é gravada. Os conjuntos obtidos ficam em `dados/sets` por até 7 dias, acessíveis só a quem tem o conjunto, porque o acordo de uso do Space-Track proíbe redistribuir os dados.
 - **Transição:** com os apps antigos nas portas 8080 e 8501, compare os resultados e os arquivos `.trn` gerados antes de desligá-los.

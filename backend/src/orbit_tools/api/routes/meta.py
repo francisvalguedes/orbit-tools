@@ -19,14 +19,16 @@ def _date(mjd: float | None) -> date | None:
 
 @router.get("/meta", response_model=Meta)
 def meta() -> Meta:
-    sites, radars, source = catalog()
+    cat = catalog()
     eop = eop_source.current()
     return Meta(
         name="orbit-tools",
         version=__version__,
-        sites=sites,
-        radars=radars,
-        sites_source=source,
+        sites=cat.sites,
+        radars=cat.radars,
+        sites_source=cat.sites_source,
+        radars_source=cat.radars_source,
+        config_errors=cat.errors,
         limits=Limits(
             max_points=settings.max_points,
             max_elements=settings.max_elements,

@@ -1,7 +1,6 @@
-import { AppShell, Select, Stack, Tabs, Text, Title } from '@mantine/core'
+import { AppShell, Stack, Tabs, Text, Title } from '@mantine/core'
 import { useLocalStorage } from '@mantine/hooks'
 import { IconActivity, IconAngle, IconArrowsExchange } from '@tabler/icons-react'
-import type { Ellipsoid } from '../../api/types'
 import { SitesManager } from '../../sites/SitesManager'
 import { DmsTab } from './DmsTab'
 import { KinematicsTab } from './KinematicsTab'
@@ -9,23 +8,19 @@ import { PointsTab } from './PointsTab'
 
 export function ConvertPage() {
   const [tab, setTab] = useLocalStorage<string>({ key: 'orbit-tools:convert-tab', defaultValue: 'points' })
-  const [ellipsoid, setEllipsoid] = useLocalStorage<Ellipsoid>({ key: 'orbit-tools:ellipsoid', defaultValue: 'wgs84' })
 
   return (
     <>
       <AppShell.Navbar p="md">
         <Stack gap="md">
-          <Select
-            label="Elipsoide"
-            description="Para todas as conversões. As coordenadas dos locais devem estar no mesmo elipsoide."
-            value={ellipsoid}
-            onChange={(v) => setEllipsoid((v as Ellipsoid) ?? 'wgs84')}
-            data={[
-              { value: 'wgs84', label: 'WGS84' },
-              { value: 'wgs72', label: 'WGS72' },
-            ]}
-            allowDeselect={false}
-          />
+          <Stack gap={2}>
+            <Text size="sm" fw={500}>
+              Elipsoide: WGS84
+            </Text>
+            <Text size="xs" c="dimmed">
+              Todas as conversões e as coordenadas dos locais são em WGS84, como no conversor antigo.
+            </Text>
+          </Stack>
           <Stack gap={4}>
             <Text size="sm" fw={500}>
               Locais de referência
@@ -56,13 +51,13 @@ export function ConvertPage() {
               </Tabs.Tab>
             </Tabs.List>
             <Tabs.Panel value="points">
-              <PointsTab ellipsoid={ellipsoid} />
+              <PointsTab />
             </Tabs.Panel>
             <Tabs.Panel value="dms">
               <DmsTab />
             </Tabs.Panel>
             <Tabs.Panel value="kinematics">
-              <KinematicsTab ellipsoid={ellipsoid} />
+              <KinematicsTab />
             </Tabs.Panel>
           </Tabs>
         </Stack>

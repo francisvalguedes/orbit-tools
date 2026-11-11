@@ -19,26 +19,53 @@ def client():
 def test_meta(client):
     body = client.get("/api/meta").json()
     assert body["name"] == "orbit-tools" and body["version"] == __version__
-    assert body["sites_source"] == "exemplos"
+    assert body["sites_source"] == body["radars_source"] == "exemplos" and body["config_errors"] == []
     assert [s["name"] for s in body["sites"]] == ["Exemplo-A", "Exemplo-B"]
-    assert body["radars"][0]["name"] == "Radar-exemplo"
+    assert body["radars"][0]["name"] == "Radar-exemplo" and body["radars"][0]["spt"] == 0.01
     assert body["limits"]["max_points"] > 0
 
 
-def test_installation_sites_file(client, tmp_path, monkeypatch):
+@pytest.fixture
+def local_config(tmp_path, monkeypatch):
+    """Aponta config/local para uma pasta temporária e relê o catálogo."""
     from orbit_tools.api.sites import catalog
     from orbit_tools.settings import settings
 
-    path = tmp_path / "locais.json"
-    path.write_text('{"sites": [{"name": "Local-real", "lat": 1.0, "lon": 2.0, "height": 3.0}]}', encoding="utf-8")
-    monkeypatch.setattr(settings, "sites_file", path)
+    monkeypatch.setattr(settings, "sites_csv", tmp_path / "locais.csv")
+    monkeypatch.setattr(settings, "radars_csv", tmp_path / "radares.csv")
     catalog.cache_clear()
-    try:
-        body = client.get("/api/meta").json()
-        assert body["sites_source"] == "locais.json"
-        assert [s["name"] for s in body["sites"]] == ["Local-real"] and body["radars"] == []
-    finally:
-        catalog.cache_clear()
+    yield tmp_path
+    catalog.cache_clear()
+
+
+def test_installation_csv_in_legacy_format(client, local_config):
+    # confLocalWGS84.csv do app antigo (com a coluna color, ignorada) e confRadar.csv sem spt
+    (local_config / "locais.csv").write_text(
+        "﻿name,lat,lon,height,color\nSENSOR-1,-5.9,-35.2,102.5,blue\nRAMPA-1,-5.92,-35.16,32.1,red\n", encoding="utf-8"
+    )
+    (local_config / "radares.csv").write_text("name;pt;gt;gr;lt;lr;fhz;sr;snr\nR1;60,6;45;45;1,7;1,7;5300;-139;0\n")
+    body = client.get("/api/meta").json()
+    assert body["config_errors"] == []
+    assert body["sites_source"].endswith("locais.csv") and body["radars_source"].endswith("radares.csv")
+    assert [s["name"] for s in body["sites"]] == ["SENSOR-1", "RAMPA-1"] and body["sites"][0]["height"] == 102.5
+    radar = body["radars"][0]
+    assert radar["name"] == "R1" and radar["pt"] == 60.6 and radar["lt"] == 1.7 and radar["spt"] == 0.01
+
+
+@pytest.mark.parametrize(
+    ("content", "message"),
+    [
+        ("name,lat,lon\nA,1,2\n", "colunas ausentes: height"),
+        ("name,lat,lon,height\nA,95,2,0\n", "linha 2"),
+        ("name,lat,lon,height\nA,1,2,0\nA,3,4,0\n", "nome repetido"),
+        ("name,lat,lon,height\nA,1,x,0\n", "linha 2"),
+    ],
+)
+def test_installation_csv_errors_are_reported(client, local_config, content, message):
+    (local_config / "locais.csv").write_text(content, encoding="utf-8")
+    body = client.get("/api/meta").json()
+    assert body["sites_source"] == "exemplos"  # cai nos exemplos, mas avisa
+    assert len(body["config_errors"]) == 1 and message in body["config_errors"][0]
 
 
 def test_convert_geodetic_to_all(client):
@@ -92,7 +119,6 @@ def test_convert_aer_in_km_and_rad_is_enu1_to_enu2(client):
         ({"system": "enu", "a": [1.0], "b": [2.0], "c": [3.0]}, 422, "local de referência"),
         ({"system": "ecef", "a": [1.0], "b": [2.0], "c": []}, 422, "mesmo número"),
         ({"system": "ecef", "a": [], "b": [], "c": []}, 422, "Nenhum ponto"),
-        ({"system": "geodetic", "a": [1.0], "b": [2.0], "c": [3.0], "ellipsoid": "sad69"}, 422, "wgs84"),
     ],
 )
 def test_convert_validation(client, body, status, message):

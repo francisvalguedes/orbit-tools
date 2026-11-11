@@ -56,7 +56,7 @@ Antes de considerar uma tarefa concluída: testes, ruff, lint e build sem erros.
 
 ## Open source e dados
 
-- **Nada específico do CLBI ou do CLA no repositório:** sem coordenadas reais de rampas, sensores ou radares, sem trajetórias restritas. Exemplos só com locais fictícios ou públicos. Configurações reais de uma instalação ficam fora do git (`config/local/`, variáveis de ambiente).
+- **Nada específico do CLBI ou do CLA no repositório:** sem coordenadas reais de rampas, sensores ou radares, sem trajetórias restritas. Exemplos só com locais fictícios ou públicos. Configurações reais de uma instalação ficam fora do git: locais e radares em `config/local/` (ver `config/README.md`), demais ajustes em variáveis de ambiente.
 - **Space-Track:** credenciais só na requisição, nunca gravadas nem registradas em log. O acordo de uso proíbe redistribuir os dados: conjuntos vindos do Space-Track não entram em caches compartilhados.
 - **Dados de teste:** só elementos públicos (Celestrak) e locais fictícios.
 

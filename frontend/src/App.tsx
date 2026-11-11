@@ -11,7 +11,9 @@ import {
   useMantineColorScheme,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
+import { notifications } from '@mantine/notifications'
 import { IconMoon, IconSun } from '@tabler/icons-react'
+import { useEffect } from 'react'
 import { useMeta } from './api/client'
 import { ErrorBoundary } from './features/ErrorBoundary'
 import { ConvertPage, ElementsPage, OrbitPage, PassesPage } from './features/pages'
@@ -47,6 +49,13 @@ export default function App() {
   const { setColorScheme } = useMantineColorScheme()
   const scheme = useComputedColorScheme('dark')
   const meta = useMeta()
+  // Erro em config/local/locais.csv ou radares.csv: o servidor usa os exemplos; avisa quem administra
+  const configErrors = meta.data?.config_errors
+  useEffect(() => {
+    for (const message of configErrors ?? []) {
+      notifications.show({ color: 'red', title: 'Configuração da instalação', message, autoClose: false })
+    }
+  }, [configErrors])
   const [module, setModule] = useModule()
   // No celular a barra lateral (parâmetros do módulo) abre pelo botão de menu
   const [navOpened, { toggle: toggleNav, close: closeNav }] = useDisclosure(false)

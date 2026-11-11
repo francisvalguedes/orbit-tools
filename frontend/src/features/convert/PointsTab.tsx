@@ -17,7 +17,7 @@ import { IconDownload, IconFileUpload, IconTable, IconWorld } from '@tabler/icon
 import { useMutation } from '@tanstack/react-query'
 import { lazy, Suspense, useMemo, useState } from 'react'
 import { api } from '../../api/client'
-import type { ConvertPointsRequest, ConvertPointsResponse, CoordinateSystem, Ellipsoid, Site } from '../../api/types'
+import type { ConvertPointsRequest, ConvertPointsResponse, CoordinateSystem, Site } from '../../api/types'
 import { download, guessColumn, readCsvFile, type Table, toCsv, toNumber } from '../../lib/csv'
 import { SiteSelect } from '../../sites/SiteSelect'
 import { useAllSites } from '../../sites/store'
@@ -108,7 +108,7 @@ function outputColumns(res: ConvertPointsResponse): ResultColumn[] {
   return cols
 }
 
-export function PointsTab({ ellipsoid }: { ellipsoid: Ellipsoid }) {
+export function PointsTab() {
   const { sites } = useAllSites()
   const [system, setSystem] = useState<CoordinateSystem>('geodetic')
   const [reference, setReference] = useState<Site | null>(null)
@@ -165,7 +165,6 @@ export function PointsTab({ ellipsoid }: { ellipsoid: Ellipsoid }) {
         system,
         reference: needsReference ? reference : null,
         outputs: outputSites.map(({ name, lat, lon, height }) => ({ name, lat, lon, height })),
-        ellipsoid,
         length_unit: lengthUnit,
         angle_unit: angleUnit,
         a: parsed.a,
@@ -345,7 +344,7 @@ export function PointsTab({ ellipsoid }: { ellipsoid: Ellipsoid }) {
           </Tabs.List>
           <Tabs.Panel value="table">
             <Text size="xs" c="dimmed" mb={4}>
-              Distâncias em m, ângulos em graus, geodésicas no {ellipsoid.toUpperCase()}.
+              Distâncias em m, ângulos em graus, geodésicas no WGS84.
             </Text>
             <ResultTable columns={columns} />
           </Tabs.Panel>

@@ -15,9 +15,11 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:5173"]
     # Caches (consultas ao Celestrak, SATCAT, EOP, conjuntos de elementos). Em Docker, deve ser um volume.
     data_dir: Path = REPO_ROOT / "dados"
-    # Locais e radares oferecidos a todos os usuários. Sem arquivo, os exemplos fictícios do pacote.
-    # Uma instalação pode apontar para um arquivo seu, fora do git (mesmo formato de data/example_sites.json).
-    sites_file: Path | None = None
+    # Locais e radares oferecidos a todos os usuários, no formato do confLocalWGS84.csv e do confRadar.csv dos
+    # apps antigos. Ficam em config/local/ (no .gitignore: coordenadas reais não vão para o repositório).
+    # Arquivo ausente: os exemplos fictícios do pacote. Modelos em config/*.exemplo.csv.
+    sites_csv: Path = REPO_ROOT / "config" / "local" / "locais.csv"
+    radars_csv: Path = REPO_ROOT / "config" / "local" / "radares.csv"
     # Pontos por requisição de conversão
     max_points: int = 500_000
 

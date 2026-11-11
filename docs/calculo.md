@@ -9,7 +9,7 @@ Como o núcleo (`backend/src/orbit_tools/core/`) calcula cada grandeza, contra o
 | Tempo | UTC, `numpy.datetime64[ns]`; para o SGP4, data juliana em duas partes (`jd`, `fr`) |
 | Distâncias | metros no núcleo; o resumo das passagens usa km, como o app antigo |
 | Ângulos | graus (azimute a partir do norte, sentido horário, em [0, 360)) |
-| Geodésicas e ENU | WGS84 por padrão (o app antigo usava o padrão do pymap3d, também WGS84); WGS72 disponível |
+| Geodésicas e ENU | WGS84 em todo o app (o app antigo usava o padrão do pymap3d, também WGS84); o `geodesy.py` também aceita WGS72, só pelo uso como biblioteca |
 | ENU | x = leste, y = norte, z = cima, origem no local (sensor) |
 
 As funções são vetorizadas e não alteram os arrays de entrada.

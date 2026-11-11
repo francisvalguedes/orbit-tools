@@ -201,12 +201,12 @@ Um objeto: intervalo e passo livres, saída em TEME, ITRS/ECEF, geodésicas e, s
 - **Converter pontos** (uma aba no lugar das antigas 02, 03, 04 e 05): sistema de entrada (geodésicas, ECEF, ENU, AZ/EL/D), local de referência, unidades (m/km, graus/rad), entrada manual ou CSV; saída em todos os sistemas e em ENU e AZ/EL/D de quantos locais forem escolhidos. O ENU¹→ENU² da antiga página 04 é entrada em ENU de um local com saída em outro, então não precisou de aba própria.
 - **GMS ↔ decimal**, aceitando também os formatos com hemisfério (`5°55'S`).
 - **Velocidade e aceleração**, com gráficos, tabela e globo. Ângulos em graus (o app antigo exportava em radianos).
-- Elipsoide WGS84 ou WGS72, já suportado pelo `geodesy.py`.
+- Elipsoide WGS84 em todas as conversões, como no conversor antigo (decidido depois da fase 3). O `geodesy.py` mantém o WGS72, testado, para uso como biblioteca; oferecê-lo na interface exigiria coordenadas dos locais por elipsoide (ver melhorias.md).
 - Todas mostram os pontos no globo.
 
 ### 4.6 Locais e radares
 
-Ficam no navegador, com importação e exportação em CSV (mesmo formato do `confLocalWGS84.csv` e do `confRadar.csv`) e JSON. O servidor só oferece exemplos fictícios ou públicos; quem instala no próprio servidor pode apontar `ORBIT_SITES_FILE` para um arquivo seu, fora do git, que aparece como lista de locais da instalação. Usar a localização do navegador como local continua disponível (substitui o `streamlit_geolocation`).
+Ficam no navegador, com importação e exportação em CSV (mesmo formato do `confLocalWGS84.csv` e do `confRadar.csv`) e JSON. O servidor só oferece exemplos fictícios ou públicos; quem instala no próprio servidor coloca os seus em `config/local/locais.csv` e `radares.csv` (fora do git, no formato dos apps antigos), que aparecem como locais da instalação. Usar a localização do navegador como local continua disponível (substitui o `streamlit_geolocation`).
 
 ## 5. Correções do código antigo
 
@@ -259,7 +259,7 @@ Cada fase termina com testes, ruff, oxlint e build sem erros, e com o app rodand
 
 **Fase 1. Núcleo de cálculo** (concluída). `time`, `eop`, `frames`, `geodesy`, `kinematics`, `elements`, `propagation`, `passes`, `radar`, `compare`, `formats`; script de referências do app antigo; testes de paridade. Resultados e diferenças documentadas em [calculo.md](calculo.md).
 
-**Fase 2. Conversões** (concluída). Rotas `/api/convert/*`, locais de exemplo no `/api/meta` (substituíveis por `ORBIT_SITES_FILE`), cadastro de locais no navegador, abas Converter pontos, GMS e Velocidade e aceleração, globo e gráficos sob demanda, layout para celular.
+**Fase 2. Conversões** (concluída). Rotas `/api/convert/*`, locais de exemplo no `/api/meta` (substituíveis pelos CSVs de `config/local/`), cadastro de locais no navegador, abas Converter pontos, GMS e Velocidade e aceleração, globo e gráficos sob demanda, layout para celular.
 
 **Fase 3. Elementos** (concluída). Rotas `/api/elements/*` (Celestrak, Space-Track, arquivo, reenvio, comparação em fluxo NDJSON), caches em disco com validade, SATCAT, EOP renovado em segundo plano, conjunto atual no IndexedDB com reenvio automático, tabela com filtros e ordenação, comparação com gráfico.
 

@@ -5,7 +5,6 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field, SecretStr, StringConstraints, model_validator
 
-Ellipsoid = Literal["wgs84", "wgs72"]
 Series = list[float | None]  # valores não finitos viram null no JSON
 
 
@@ -53,7 +52,9 @@ class Meta(BaseModel):
     version: str
     sites: list[Site]
     radars: list[RadarModel]
-    sites_source: str  # "exemplos" ou o nome do arquivo da instalação
+    sites_source: str  # "exemplos" ou o caminho de config/local/locais.csv
+    radars_source: str  # "exemplos" ou o caminho de config/local/radares.csv
+    config_errors: list[str]  # erros nesses arquivos (o app usa os exemplos e avisa)
     limits: Limits
     eop: EopInfo
 
@@ -236,7 +237,6 @@ class ConvertPointsRequest(BaseModel):
     system: CoordinateSystem
     reference: Site | None = None  # origem do ENU/AER de entrada
     outputs: list[Site] = Field(default_factory=list, max_length=20)  # locais para ENU e AER de saída
-    ellipsoid: Ellipsoid = "wgs84"
     length_unit: Literal["m", "km"] = "m"
     angle_unit: Literal["deg", "rad"] = "deg"
     a: list[float]
@@ -301,7 +301,6 @@ class KinematicsRequest(BaseModel):
     step_s: float = Field(gt=0)
     source: Site
     target: Site | None = None  # sem target: no próprio referencial de origem
-    ellipsoid: Ellipsoid = "wgs84"
     length_unit: Literal["m", "km"] = "m"
 
     @model_validator(mode="after")
