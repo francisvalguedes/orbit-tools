@@ -1,0 +1,37 @@
+# .github/workflows/frontend-build.yml
+name: Frontend compilado
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write              # para criar o release e enviar o anexo
+
+concurrency:
+  group: frontend-build
+  cancel-in-progress: true     # dois pushes seguidos: vale só o último
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci && npm run build
+        working-directory: frontend
+      # O commit vai dentro do pacote: o servidor confere se o frontend é do mesmo código
+      - run: |
+          echo "$GITHUB_SHA" > frontend/dist/COMMIT
+          tar -czf dist.tar.gz -C frontend/dist .
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view build-main >/dev/null 2>&1 ||
+            gh release create build-main --prerelease --title "build-main (teste)" \
+              --notes "Frontend compilado do último commit da main."
+          gh release upload build-main dist.tar.gz --clobber
