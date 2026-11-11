@@ -1,6 +1,6 @@
 """Contrato da API. Espelhado à mão em frontend/src/api/types.ts: ao mudar um, mudar o outro."""
 
-from datetime import date
+from datetime import date, datetime
 from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field, SecretStr, StringConstraints, model_validator
@@ -35,6 +35,10 @@ class Limits(BaseModel):
     max_celestrak_ids: int
     max_spacetrack_ids: int
     max_history_days: float
+    max_search_days: float
+    max_object_days: float
+    max_trajectory_points: int
+    max_export_points: int
 
 
 class EopInfo(BaseModel):
@@ -98,6 +102,72 @@ class StoreResponse(BaseModel):
 
 class SetRef(BaseModel):
     set_id: str
+
+
+# --- Passagens ---------------------------------------------------------------------------------
+
+
+class SearchRequest(BaseModel):
+    set_id: str
+    site: Site
+    start: datetime  # UTC (sem fuso = UTC)
+    end: datetime
+    d_max_km: float = Field(default=1100, gt=0, le=50_000)
+    d_min_km: float = Field(default=1000, gt=0, le=50_000)
+    min_el_deg: float | None = Field(default=None, ge=-5, le=89)
+    include_partial: bool = False
+    radar: RadarModel | None = None
+    rcs_by_size: dict[str, float] | None = None  # RCS representativo por classe (m²), quando o objeto não tem RCS
+
+    @model_validator(mode="after")
+    def _check(self):
+        if self.d_max_km < 1.05 * self.d_min_km:
+            raise ValueError("A distância máxima deve ser pelo menos 5% maior que a mínima (como no app antigo).")
+        return self
+
+
+class PassRef(BaseModel):
+    """Uma passagem: o conjunto de elementos (NORAD + época) e o trecho (H0 e END_PT, em s)."""
+
+    norad: int
+    epoch: str
+    h0: datetime
+    end_pt: float = Field(ge=0)
+
+
+class TrajectoryRequest(BaseModel):
+    set_id: str
+    site: Site
+    passage: PassRef
+    step_s: float = Field(default=1.0, gt=0)
+
+
+class TrajectoryResponse(BaseModel):
+    t: Series  # s desde H0
+    az: Series  # graus
+    el: Series
+    range: Series  # m
+    lat: Series
+    lon: Series
+    height: Series
+    az_rate: Series  # graus/s (azimute desenrolado)
+    el_rate: Series
+
+
+class ExportFormats(BaseModel):
+    trn: bool = True  # obj-…trn a 1 Hz
+    trj: bool = True  # pobj-…trj a 1 Hz
+    data_csv: bool = True  # data-…csv a 1 Hz
+    trn_rate: bool = True  # <taxa>Hz_obj-…trn na taxa do radar
+
+
+class ExportRequest(BaseModel):
+    set_id: str
+    site: Site
+    passes: list[PassRef] = Field(min_length=1)
+    formats: ExportFormats = Field(default_factory=ExportFormats)
+    rate_s: float = Field(default=0.01, gt=0, le=10)
+    summary: list[dict[str, Any]] | None = None  # linhas do resumo das passagens escolhidas
 
 
 # --- Conversões --------------------------------------------------------------------------------

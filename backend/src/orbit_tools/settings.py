@@ -37,6 +37,13 @@ class Settings(BaseSettings):
     max_celestrak_ids: int = 100  # o Celestrak aceita um NORAD por consulta
     max_spacetrack_ids: int = 650  # como no app antigo
     max_history_days: float = 10.0  # intervalo de época no histórico do Space-Track
+    # Busca de passagens: janela máxima e custo máximo (objetos × dias; ~1 s a cada 1 000 objeto·dia)
+    max_search_days: float = 10.0
+    max_object_days: float = 60_000.0
+    # Pontos por trajetória consultada (globo, gráficos) e total de pontos de uma exportação
+    max_trajectory_points: int = 200_000
+    max_export_points: int = 30_000_000
+    export_hours: float = 2.0  # validade dos ZIPs gerados
 
 
 settings = Settings()

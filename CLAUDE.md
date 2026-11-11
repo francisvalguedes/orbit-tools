@@ -35,6 +35,7 @@ uv run ruff check . && uv run ruff format --check .
 npm ci
 npm run dev                               # http://localhost:5173, encaminha /api para a porta 8000
 npm run lint                              # oxlint
+npm test                                  # node --test (lógica pura em *.test.ts, sem dependências)
 npm run build                             # tsc -b + vite build → frontend/dist
 ```
 

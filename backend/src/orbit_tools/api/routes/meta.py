@@ -33,6 +33,10 @@ def meta() -> Meta:
             max_celestrak_ids=settings.max_celestrak_ids,
             max_spacetrack_ids=settings.max_spacetrack_ids,
             max_history_days=settings.max_history_days,
+            max_search_days=settings.max_search_days,
+            max_object_days=settings.max_object_days,
+            max_trajectory_points=settings.max_trajectory_points,
+            max_export_points=settings.max_export_points,
         ),
         eop=EopInfo(
             source=eop.source,

@@ -14,6 +14,7 @@ from ..settings import settings
 from ..sources import SourceError, celestrak
 from ..sources import eop as eop_source
 from . import element_sets
+from .routes import passes as passes_routes
 from .routes import routers
 
 log = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ MAINTENANCE_INTERVAL_S = 12 * 3600
 
 def maintenance() -> None:
     """Apaga caches vencidos e renova o EOP quando tem mais de `eop_cache_days`."""
-    removed = element_sets.purge()
+    removed = element_sets.purge() + passes_routes.purge_exports()
     removed += DiskCache(settings.data_dir / "cache" / "celestrak", settings.celestrak_cache_hours * 3600).purge()
     if removed:
         log.info("manutenção: %d arquivos de cache vencidos apagados", removed)

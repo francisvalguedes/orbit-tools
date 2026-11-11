@@ -35,6 +35,10 @@ export interface Meta {
     max_celestrak_ids: number
     max_spacetrack_ids: number
     max_history_days: number
+    max_search_days: number
+    max_object_days: number
+    max_trajectory_points: number
+    max_export_points: number
   }
   eop: { source: string; first_date: string | null; last_date: string | null; last_observed: string | null }
 }
@@ -175,4 +179,98 @@ export interface CompareRow {
 export interface Progress {
   fraction: number
   stage: string
+}
+
+// --- Passagens ----------------------------------------------------------------------------------
+
+export interface SearchRequest {
+  set_id: string
+  site: Site
+  start: string // UTC, ISO sem fuso
+  end: string
+  d_max_km: number
+  d_min_km: number
+  min_el_deg: number | null
+  include_partial: boolean
+  radar: Radar | null
+}
+
+/** Linha do resumo de uma passagem: colunas do app antigo, colunas novas e os elementos do objeto. */
+export interface PassRow {
+  NORAD_CAT_ID: number
+  OBJECT_NAME: string | null
+  OBJECT_TYPE?: string | null
+  RCS_SIZE: string | null
+  RCS: number
+  RCS_MIN?: number
+  H0: string
+  H0_H: string
+  H0_RANGE: number
+  MIN_RANGE_H: string
+  MIN_RANGE_PT: number
+  MIN_RANGE: number
+  END_H: string
+  END_PT: number
+  END_RANGE: number
+  DURATION: number
+  MAX_EL: number
+  MAX_EL_H: string
+  AZ_H0: number
+  AZ_END: number
+  MAX_AZ_RATE: number | null
+  MAX_EL_RATE: number | null
+  EPOCH_AGE: number
+  PARTIAL: number
+  SGP4_ERROR: number
+  RCS_USED: number | null
+  RCS_SOURCE: string
+  MAX_MARGIN_DB?: number | null
+  DETECTABLE_S?: number
+  DET_START_PT?: number | null
+  DET_END_PT?: number | null
+  EPOCH: string
+  DECAY_DATE?: string | null
+  [key: string]: unknown
+}
+
+export interface SearchResult {
+  passes: PassRow[]
+  objects: number
+  excluded_perigee: number[]
+  eop: string
+  warnings: string[]
+}
+
+export interface PassRef {
+  norad: number
+  epoch: string
+  h0: string
+  end_pt: number
+}
+
+export interface TrajectoryResponse {
+  t: Series
+  az: Series
+  el: Series
+  range: Series
+  lat: Series
+  lon: Series
+  height: Series
+  az_rate: Series
+  el_rate: Series
+}
+
+export interface ExportRequest {
+  set_id: string
+  site: Site
+  passes: PassRef[]
+  formats: { trn: boolean; trj: boolean; data_csv: boolean; trn_rate: boolean }
+  rate_s: number
+  summary: PassRow[] | null
+}
+
+export interface ExportResult {
+  url: string
+  file_name: string
+  files: number
 }

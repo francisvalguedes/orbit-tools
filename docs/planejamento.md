@@ -263,7 +263,7 @@ Cada fase termina com testes, ruff, oxlint e build sem erros, e com o app rodand
 
 **Fase 3. Elementos** (concluída). Rotas `/api/elements/*` (Celestrak, Space-Track, arquivo, reenvio, comparação em fluxo NDJSON), caches em disco com validade, SATCAT, EOP renovado em segundo plano, conjunto atual no IndexedDB com reenvio automático, tabela com filtros e ordenação, comparação com gráfico.
 
-**Fase 4. Passagens.** Busca em fluxo, tabela, regras, linha do tempo e conflitos, radar, visualização (globo, polar, gráficos), exportação ZIP.
+**Fase 4. Passagens** (concluída). Rotas `/api/passes/search` (fluxo NDJSON, limite de custo objeto·dia), `/api/passes/trajectory` e `/api/passes/export` (ZIP com os nomes antigos, válido por 2 h); radares no navegador; tabela com seleção, regras salvas, linha do tempo com conflitos e "resolver conflitos" por prioridade, detalhe da passagem (polar, taxas, globo) e geração dos arquivos, inteira ou só o trecho detectável. Medido: 156 objetos × 1 dia em 0,5 s; 410 mil pontos a 100 Hz gerados em 0,8 s.
 
 **Fase 5. Órbita.** Efemérides, globo com órbita e traço no solo.
 

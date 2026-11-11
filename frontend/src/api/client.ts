@@ -8,11 +8,18 @@ import type {
   DmsResult,
   ElementRecord,
   ElementSet,
+  ExportRequest,
+  ExportResult,
   KinematicsRequest,
   KinematicsResponse,
   Meta,
+  PassRef,
   Progress,
+  SearchRequest,
+  SearchResult,
+  Site,
   SpaceTrackRequest,
+  TrajectoryResponse,
 } from './types'
 
 export class ApiError extends Error {
@@ -127,6 +134,14 @@ export const api = {
       postStream<{ rows: CompareRow[] }>('/elements/compare', { set_id: setId }, onProgress, signal).then(
         (r) => r.rows,
       ),
+  },
+  passes: {
+    search: (req: SearchRequest, onProgress: (p: Progress) => void, signal?: AbortSignal) =>
+      postStream<SearchResult>('/passes/search', req, onProgress, signal),
+    trajectory: (setId: string, site: Site, passage: PassRef, stepS = 1, signal?: AbortSignal) =>
+      post<TrajectoryResponse>('/passes/trajectory', { set_id: setId, site, passage, step_s: stepS }, signal),
+    export: (req: ExportRequest, onProgress: (p: Progress) => void, signal?: AbortSignal) =>
+      postStream<ExportResult>('/passes/export', req, onProgress, signal),
   },
 }
 
