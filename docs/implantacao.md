@@ -5,7 +5,7 @@ Em produção roda um único processo (uvicorn), como serviço systemd, que serv
 | Caminho ou nome | Valor |
 |---|---|
 | Código | `/opt/apps/orbit-tools` |
-| Usuário de sistema | `orbittools` (home `/var/lib/orbittools`: Python instalado pelo uv e caches do npm) |
+| Usuário de sistema | `trajetoria` (home `/var/lib/trajetoria`: Python instalado pelo uv e caches do npm) |
 | Pasta de dados | `/opt/apps/orbit-tools/dados` (caches, conjuntos de elementos, ZIPs gerados; fora do git) |
 | Configuração da instalação | `/etc/orbit-tools/orbit-tools.env` (opcional) |
 | Serviço | `orbit-tools` |
@@ -30,29 +30,30 @@ curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
 sudo apt install -y nodejs
 
 # usuário de sistema e código
-sudo useradd --system --create-home --home-dir /var/lib/orbittools --shell /usr/sbin/nologin orbittools
+# se ainda não existir (pode ser o mesmo usuário de outros apps do servidor)
+sudo useradd --system --create-home --home-dir /var/lib/trajetoria --shell /usr/sbin/nologin trajetoria
 sudo mkdir -p /opt/apps/orbit-tools
-sudo chown orbittools: /opt/apps/orbit-tools
-sudo -u orbittools git clone https://github.com/francisvalguedes/orbit-tools.git /opt/apps/orbit-tools
+sudo chown trajetoria: /opt/apps/orbit-tools
+sudo -u trajetoria git clone https://github.com/francisvalguedes/orbit-tools.git /opt/apps/orbit-tools
 
 # build do frontend e ambiente Python de produção (com o extra "server" e sem as dependências de desenvolvimento)
-sudo -u orbittools -H bash -c 'cd /opt/apps/orbit-tools/frontend && npm ci && npm run build'
-sudo -u orbittools -H bash -c 'cd /opt/apps/orbit-tools/backend && uv sync --frozen --no-dev --extra server'
+sudo -u trajetoria -H bash -c 'cd /opt/apps/orbit-tools/frontend && npm ci && npm run build'
+sudo -u trajetoria -H bash -c 'cd /opt/apps/orbit-tools/backend && uv sync --frozen --no-dev --extra server'
 
 # pasta de dados; precisa existir antes de o serviço iniciar
-sudo -u orbittools mkdir -p /opt/apps/orbit-tools/dados
+sudo -u trajetoria mkdir -p /opt/apps/orbit-tools/dados
 ```
 
 O `--extra server` é obrigatório: as dependências web (FastAPI, uvicorn, httpx2) ficam num extra para o núcleo de cálculo poder ser instalado sozinho como biblioteca. Sem ele, o serviço não inicia (`ModuleNotFoundError: fastapi`).
 
-O usuário `orbittools` tem shell `nologin`: para rodar comandos como ele, use `sudo -u orbittools -H bash -c '...'` (ou `sudo -u orbittools -H bash` para uma sessão), não `sudo -iu orbittools`.
+O usuário `trajetoria` tem shell `nologin`: para rodar comandos como ele, use `sudo -u trajetoria -H bash -c '...'` (ou `sudo -u trajetoria -H bash` para uma sessão), não `sudo -iu trajetoria`.
 
 ### Teste
 
 Antes de criar o serviço, suba o app à mão e confira no navegador (Ctrl+C para parar). Se o serviço já existir, pare-o antes (`sudo systemctl stop orbit-tools`), porque os dois usam a porta 8010:
 
 ```bash
-sudo -u orbittools -H bash -c 'cd /opt/apps/orbit-tools/backend && .venv/bin/uvicorn orbit_tools.api.main:app --host 0.0.0.0 --port 8010'
+sudo -u trajetoria -H bash -c 'cd /opt/apps/orbit-tools/backend && .venv/bin/uvicorn orbit_tools.api.main:app --host 0.0.0.0 --port 8010'
 ```
 
 Acesse `http://<servidor>:8010`. O selo de versão no canto superior direito fica verde quando a interface fala com o backend. Nos primeiros segundos o servidor baixa o SATCAT (~7 MB) e o arquivo EOP (~3 MB, pode levar 30 s ou mais) para a pasta de dados.
@@ -125,7 +126,7 @@ Coordenadas geodésicas em graus decimais (sul e oeste negativos) e altura acima
 ## Atualização
 
 ```bash
-sudo -u orbittools -H bash -c '
+sudo -u trajetoria -H bash -c '
   cd /opt/apps/orbit-tools && git pull &&
   cd frontend && npm ci && npm run build &&
   cd ../backend && uv sync --frozen --no-dev --extra server'
@@ -157,14 +158,14 @@ Copie o `dist.tar.gz` para `/opt/apps/orbit-tools/frontend/` no servidor (o `*.t
 
 ```bash
 cd /opt/apps/orbit-tools
-sudo -u orbittools git pull
-sudo -u orbittools -H bash -c 'cd backend && uv sync --frozen --no-dev --extra server'
+sudo -u trajetoria git pull
+sudo -u trajetoria -H bash -c 'cd backend && uv sync --frozen --no-dev --extra server'
 
 cd frontend
 sudo rm -rf dist
 sudo mkdir dist
 sudo tar -xzf dist.tar.gz -C dist --no-same-owner
-sudo chown -R orbittools: dist
+sudo chown -R trajetoria: dist
 sudo systemctl restart orbit-tools
 ```
 

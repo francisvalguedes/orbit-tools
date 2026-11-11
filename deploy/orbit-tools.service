@@ -11,8 +11,8 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-User=orbittools
-Group=orbittools
+User=trajetoria
+Group=trajetoria
 WorkingDirectory=/opt/apps/orbit-tools/backend
 # Configuração da instalação (opcional): locais e radares próprios, proxy, limites. Fora do git e legível só
 # pelo root, porque a URL do proxy pode ter senha. Modelo em deploy/orbit-tools.env.example.
