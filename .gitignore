@@ -12,6 +12,8 @@ frontend/dist/
 
 # Caches da aplicação (consultas, EOP, conjuntos de elementos)
 /dados/
+# Arquivos de teste locais (podem ter dados do Space-Track, que não podem ser redistribuídos)
+/dados_teste/
 
 # Configuração local de instalação (locais e radares reais ficam fora do git)
 /config/local/

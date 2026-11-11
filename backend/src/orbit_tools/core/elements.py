@@ -13,7 +13,7 @@ import io
 import json
 import math
 import re
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from datetime import datetime, timedelta
 
 from sgp4 import omm
@@ -44,7 +44,7 @@ DEFAULTS: dict[str, object] = {
     "ELEMENT_SET_NO": 999,
     "REV_AT_EPOCH": 0,
 }
-INT_FIELDS = {"NORAD_CAT_ID", "EPHEMERIS_TYPE", "ELEMENT_SET_NO", "REV_AT_EPOCH"}
+INT_FIELDS = {"NORAD_CAT_ID", "EPHEMERIS_TYPE", "ELEMENT_SET_NO", "REV_AT_EPOCH", "GP_ID", "FILE"}
 # Nunca convertidos para número, mesmo que pareçam
 TEXT_FIELDS = {
     "OBJECT_NAME",
@@ -261,13 +261,43 @@ def periapsis_km(record: Mapping[str, object]) -> float:
 
 
 def latest_per_object(records: Iterable[Mapping[str, object]]) -> list[Record]:
-    """Um conjunto por objeto, o de época mais recente (como o app antigo antes de propagar)."""
+    """
+    Um conjunto por objeto: o de época mais recente (como o app antigo antes de propagar) e, na mesma
+    época (republicação do Space-Track), a publicação mais nova.
+    """
     best: dict[int, Mapping[str, object]] = {}
     for r in records:
         norad = int(r["NORAD_CAT_ID"])
-        if norad not in best or str(r["EPOCH"]) > str(best[norad]["EPOCH"]):
+        if norad not in best or (str(r["EPOCH"]), *_publication(r)) > (
+            str(best[norad]["EPOCH"]),
+            *_publication(best[norad]),
+        ):
             best[norad] = r
     return [dict(best[k]) for k in sorted(best, reverse=True)]
+
+
+def drop_republished(records: Sequence[Record]) -> tuple[list[Record], int]:
+    """
+    Um conjunto por objeto e época. O Space-Track às vezes republica a mesma época com outro GP_ID e
+    pequenas diferenças (BSTAR, excentricidade); fica a publicação mais recente (CREATION_DATE, depois
+    GP_ID). Devolve os registros, na ordem original, e quantos foram descartados.
+    """
+    best: dict[tuple[int, str], Record] = {}
+    order: list[tuple[int, str]] = []
+    for r in records:
+        key = (int(r["NORAD_CAT_ID"]), str(r["EPOCH"]))
+        if key not in best:
+            order.append(key)
+            best[key] = r
+        elif _publication(r) > _publication(best[key]):
+            best[key] = r
+    out = [best[k] for k in order]
+    return out, len(records) - len(out)
+
+
+def _publication(r: Mapping[str, object]) -> tuple[str, int]:
+    gp_id = r.get("GP_ID")
+    return str(r.get("CREATION_DATE") or ""), int(gp_id) if isinstance(gp_id, int | float) else -1
 
 
 def age_days(record: Mapping[str, object], at: datetime) -> float:

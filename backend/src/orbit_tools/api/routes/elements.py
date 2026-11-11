@@ -49,6 +49,12 @@ def _finish(
     except SourceError as exc:
         catalog = None
         warnings.append(f"Tipo de objeto e RCS indisponíveis ({exc}).")
+    records, republished = elements.drop_republished(records)
+    if republished:
+        warnings.append(
+            f"{republished} conjunto(s) republicado(s) com a mesma época de outro: mantida a publicação mais "
+            "recente de cada época (as épocas diferentes, usadas na comparação, ficam todas)."
+        )
     records = elements.enrich(records, catalog)
     records.sort(key=lambda r: (int(r["NORAD_CAT_ID"]), str(r["EPOCH"])), reverse=True)  # como o app antigo
     decayed = sorted({int(r["NORAD_CAT_ID"]) for r in records if r.get("DECAY_DATE")})

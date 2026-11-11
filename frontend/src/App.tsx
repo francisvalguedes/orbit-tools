@@ -13,6 +13,7 @@ import {
 import { useDisclosure } from '@mantine/hooks'
 import { IconMoon, IconSun } from '@tabler/icons-react'
 import { useMeta } from './api/client'
+import { ErrorBoundary } from './features/ErrorBoundary'
 import { ConvertPage, ElementsPage, OrbitPage, PassesPage } from './features/pages'
 import { MODULES, type ModuleId, useModule } from './modules'
 
@@ -101,7 +102,9 @@ export default function App() {
           </Group>
         </Group>
       </AppShell.Header>
-      <Page />
+      <ErrorBoundary key={module}>
+        <Page />
+      </ErrorBoundary>
     </AppShell>
   )
 }

@@ -64,7 +64,9 @@ Copiado do trajetory-analysis: `v[i] = (x[i+1] − x[i−1]) / 2h` e `a[i] = (x[
 
 ## 7. Elementos (`elements.py`)
 
-OMM em CSV, JSON e XML e TLE de 2 ou 3 linhas, normalizados para o dicionário OMM do Celestrak e do Space-Track. Campos que o sgp4 exige e arquivos de usuários às vezes não trazem recebem valores padrão (`CLASSIFICATION_TYPE` U, `ELEMENT_SET_NO` 999…). O perigeu é calculado dos elementos (constantes WGS72, as mesmas do Space-Track) quando não há `PERIAPSIS`.
+OMM em CSV, JSON e XML e TLE de 2 ou 3 linhas, normalizados para o dicionário OMM do Celestrak e do Space-Track.
+
+O Space-Track às vezes republica a mesma época de um objeto com outro `GP_ID` e pequenas diferenças (BSTAR, excentricidade); no histórico de 1 693 conjuntos usado nos testes manuais, 66 eram republicações. Ao receber elementos, fica só a publicação mais recente de cada época (`CREATION_DATE`, depois `GP_ID`), com um aviso; as épocas diferentes, que a comparação usa, ficam todas. Onde se usa "o elemento mais recente de cada objeto" (busca de passagens, módulo Órbita), vale a época mais nova e, no empate, a publicação mais nova. Campos que o sgp4 exige e arquivos de usuários às vezes não trazem recebem valores padrão (`CLASSIFICATION_TYPE` U, `ELEMENT_SET_NO` 999…). O perigeu é calculado dos elementos (constantes WGS72, as mesmas do Space-Track) quando não há `PERIAPSIS`.
 
 ## 8. Propagação e passagens (`propagation.py`, `passes.py`)
 

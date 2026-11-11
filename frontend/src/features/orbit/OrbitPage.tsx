@@ -5,6 +5,7 @@ import { useMutation } from '@tanstack/react-query'
 import { lazy, Suspense, useMemo, useState } from 'react'
 import { api, useMeta, withElementSet } from '../../api/client'
 import type { EphemerisRequest, EphemerisResponse, Series, Site } from '../../api/types'
+import { latestPerObject } from '../../elements/latest'
 import { updateSetId, useElementSet } from '../../elements/store'
 import { download, toCsv } from '../../lib/csv'
 import { fmtNum } from '../../lib/format'
@@ -57,16 +58,18 @@ export function OrbitPage() {
   const [tab, setTab] = useLocalStorage<string>({ key: 'orbit-tools:orbit-tab', defaultValue: 'globe' })
   const [error, setError] = useState<string | null>(null)
 
+  // Um item por objeto, com o elemento mais recente (como a busca de passagens)
+  const latest = useMemo(() => latestPerObject(set?.records ?? []), [set])
   const options = useMemo(
     () =>
-      (set?.records ?? []).map((r) => ({
-        value: `${r.NORAD_CAT_ID}|${r.EPOCH}`,
+      latest.map((r) => ({
+        value: String(r.NORAD_CAT_ID),
         label: `${r.NORAD_CAT_ID} · ${r.OBJECT_NAME ?? ''} · época ${String(r.EPOCH).slice(0, 16).replace('T', ' ')}`,
       })),
-    [set],
+    [latest],
   )
-  const chosen = objectKey ?? options[0]?.value ?? null
-  const record = set?.records.find((r) => `${r.NORAD_CAT_ID}|${r.EPOCH}` === chosen) ?? null
+  const chosen = objectKey && options.some((o) => o.value === objectKey) ? objectKey : (options[0]?.value ?? null)
+  const record = latest.find((r) => String(r.NORAD_CAT_ID) === chosen) ?? null
   const points = Math.floor((hours * 3600) / step) + 1
   const maxPoints = meta.data?.limits.max_trajectory_points
 

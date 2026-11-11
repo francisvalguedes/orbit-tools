@@ -97,3 +97,20 @@ def test_perigee_and_latest(iss2025):
     latest = E.latest_per_object([iss2025, newer, other])
     assert [r["NORAD_CAT_ID"] for r in latest] == [25544, 1]
     assert latest[0]["EPOCH"] == newer["EPOCH"]
+
+
+def test_drop_republished_keeps_newest_publication_and_all_epochs(iss2025):
+    old = dict(iss2025, GP_ID=357331304, CREATION_DATE="2026-11-07T23:56:22", BSTAR=0.00017169)
+    new = dict(iss2025, GP_ID=357426726, CREATION_DATE="2026-11-08T03:18:45", BSTAR=0.00017168624)
+    earlier = dict(iss2025, EPOCH="2025-03-16T08:00:00.000000", GP_ID=357000000, CREATION_DATE="2025-03-16T09:00:00")
+    out, dropped = E.drop_republished([old, earlier, new])
+    assert dropped == 1 and len(out) == 2
+    assert out[0]["GP_ID"] == 357426726 and out[1]["EPOCH"] == earlier["EPOCH"]  # ordem original, época anterior fica
+    assert E.normalize({**iss2025, "GP_ID": "357426726"})["GP_ID"] == 357426726  # inteiro, não 357426726.0
+
+
+def test_latest_per_object_prefers_newest_publication(iss2025):
+    old = dict(iss2025, GP_ID=1, CREATION_DATE="2026-11-07T23:56:22")
+    new = dict(iss2025, GP_ID=2, CREATION_DATE="2026-11-08T03:18:45")
+    assert E.latest_per_object([new, old])[0]["GP_ID"] == 2
+    assert E.latest_per_object([old, new])[0]["GP_ID"] == 2
