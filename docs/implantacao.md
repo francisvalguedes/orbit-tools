@@ -224,3 +224,11 @@ sudo systemctl restart orbit-tools
 - **Dados restritos:** nada específico de uma instalação vai para o repositório. As coordenadas reais ficam em `config/local/` (no `.gitignore`); os detalhes de cada servidor (usuários, pastas, portas, proxy) ficam fora deste repositório público.
 - **Space-Track:** a senha do usuário vai só na consulta e não é gravada. Os conjuntos obtidos ficam em `dados/sets` por até 7 dias, acessíveis só a quem tem o conjunto, porque o acordo de uso do Space-Track proíbe redistribuir os dados.
 - **Transição:** com os apps antigos ainda no ar, compare os resultados e os arquivos `.trn` gerados antes de desligá-los.
+
+## Comandos úteis
+
+Envia a develop direto para a main do GitHub
+´´´
+git push origin develop:main
+
+´´´
