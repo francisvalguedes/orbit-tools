@@ -4,7 +4,7 @@ Orientações para sessões do Claude Code neste repositório.
 
 ## Projeto
 
-Aplicação web open source de elementos orbitais, passagens sobre sensores, trajetórias para rastreio e conversões de coordenadas. Público principal: CLBI e CLA. Substitui os apps Streamlit `TrajectoryOrbitPropag` e `trajectory-coordinate-converter`, que são a referência de cálculo (paridade), mas não de organização.
+Aplicação web open source de elementos orbitais, passagens sobre sensores, trajetórias para rastreio e conversões de coordenadas. Público principal: equipes que rastreiam objetos espaciais com radar. Substitui os apps Streamlit `TrajectoryOrbitPropag` e `trajectory-coordinate-converter`, que são a referência de cálculo (paridade), mas não de organização.
 
 Antes de decisões de arquitetura, ler [docs/planejamento.md](docs/planejamento.md) (decisões, módulos, fases e os testes que as justificam). Antes de mexer no cálculo, ler [docs/calculo.md](docs/calculo.md) (modelos, validação e diferenças em relação aos apps antigos).
 
@@ -48,7 +48,7 @@ Antes de considerar uma tarefa concluída: testes, ruff, lint e build sem erros.
 - **Python:** ruff com linha de 120; funções do núcleo vetorizadas com numpy e sem alterar os arrays de entrada.
 - **Servidor sem estado:** o navegador guarda os dados do usuário (elementos, locais, radares, seleções); o servidor só calcula e mantém caches com validade em `ORBIT_DATA_DIR`. Cálculos longos respondem em fluxo (NDJSON).
 - **Paridade:** mudanças de cálculo mantêm os testes de paridade com os apps antigos ou documentam a diferença em `docs/calculo.md`. As referências (`backend/tests/data/legacy/`) são geradas por `backend/tests/legacy/gen_orbit_refs.py` no ambiente do app antigo; não editar à mão.
-- **Formatos de rastreio:** `.trn` e `.trj` idênticos aos do app antigo, com H0 no nome do arquivo; os sistemas de rastreio do CLBI e do CLA dependem disso.
+- **Formatos de rastreio:** `.trn` e `.trj` idênticos aos do app antigo, com H0 no nome do arquivo; os sistemas de rastreio que consomem esses arquivos dependem disso.
 - **Números na interface:** espaço fino nos milhares e ponto decimal (`fmtNum` em `frontend/src/lib/format.ts`).
 - **Cesium e Plotly:** carregados sob demanda (`React.lazy`), nunca no carregamento inicial.
 - **Tipos da API:** `frontend/src/api/types.ts` espelha à mão `backend/src/orbit_tools/api/schemas.py`; ao mudar um, mudar o outro.
@@ -56,7 +56,7 @@ Antes de considerar uma tarefa concluída: testes, ruff, lint e build sem erros.
 
 ## Open source e dados
 
-- **Nada específico do CLBI ou do CLA no repositório:** sem coordenadas reais de rampas, sensores ou radares, sem trajetórias restritas. Exemplos só com locais fictícios ou públicos. Configurações reais de uma instalação ficam fora do git: locais e radares em `config/local/` (ver `config/README.md`), demais ajustes em variáveis de ambiente.
+- **Nada específico de uma instalação no repositório:** sem nomes de instituições, sem coordenadas reais de rampas, sensores ou radares, sem trajetórias restritas. Exemplos só com locais fictícios ou públicos. Configurações reais de uma instalação ficam fora do git: locais e radares em `config/local/` (ver `config/README.md`), demais ajustes em variáveis de ambiente; usuários, pastas e portas de cada servidor ficam na documentação do próprio servidor, não aqui.
 - **Space-Track:** credenciais só na requisição, nunca gravadas nem registradas em log. O acordo de uso proíbe redistribuir os dados: conjuntos vindos do Space-Track não entram em caches compartilhados.
 - **Dados de teste:** só elementos públicos (Celestrak) e locais fictícios.
 

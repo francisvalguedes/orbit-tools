@@ -1,7 +1,7 @@
 """
 Arquivos de saída no formato do app antigo.
 
-Os sistemas de rastreio do CLBI e do CLA leem o `.trn` (ENU em m, sem tempo) e tiram o H0 do nome
+Os sistemas de rastreio que consomem estes arquivos leem o `.trn` (ENU em m, sem tempo) e tiram o H0 do nome
 do arquivo, então cabeçalhos, casas decimais e nomes são mantidos exatamente:
 
     obj-<NORAD>-<AAAA_MM_DD>-H0-<HH_MM_SS>TU.trn       ENU a 1 Hz, cabeçalho "<n-1>,1000,1"

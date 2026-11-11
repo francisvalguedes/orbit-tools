@@ -2,7 +2,7 @@
 
 Software open source (GitHub) de propagação de órbita, geração de trajetória e conversão de coordenadas. Unifica dois apps Streamlit existentes numa aplicação web com a mesma arquitetura e estilo do trajetory-analysis.
 
-Público principal: CLBI e CLA.
+Público principal: equipes que rastreiam objetos espaciais com radar.
 
 ## Repositórios de referência
 
@@ -47,7 +47,7 @@ Módulos da interface:
 
 ## Cuidados por ser open source
 
-- **Nada específico do CLBI no repositório:** sem dados do STDL, sem coordenadas reais de rampas e sensores, sem trajetórias restritas. Locais e sensores ficam configuráveis pelo usuário, com exemplos fictícios ou públicos.
+- **Nada específico de uma instalação no repositório:** sem dados de rastreio reais, sem coordenadas reais de rampas e sensores, sem trajetórias restritas. Locais e sensores ficam configuráveis pelo usuário, com exemplos fictícios ou públicos.
 - **Credenciais do Space-Track:** informadas pelo usuário e nunca armazenadas no servidor.
 - **Conversões:** reaproveitar o `geodesy.py` do trajetory-analysis. O pymap3d fica só como referência nos testes.
 - **Deploy:** `Dockerfile`/`docker compose` para rodar com um comando, além do deploy com systemd no servidor próprio. Espelho público gratuito possível no Hugging Face Spaces (Docker) ou no Render (os planos gratuitos mudam; conferir antes).

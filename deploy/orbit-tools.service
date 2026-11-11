@@ -1,9 +1,11 @@
-# Serviço systemd do orbit-tools. Instalação em docs/implantacao.md:
-#   sudo cp deploy/orbit-tools.service /etc/systemd/system/
+# Serviço systemd do orbit-tools, com os valores padrão de docs/implantacao.md (usuário trajetoria, código em
+# /opt/apps/orbit-tools). Com outros nomes, troque ao copiar, como no guia:
+#   sed -e 's/trajetoria/<usuário>/g' -e 's#/opt/apps/orbit-tools#<pasta>#g' deploy/orbit-tools.service \
+#     | sudo tee /etc/systemd/system/orbit-tools.service > /dev/null
 #   sudo systemctl daemon-reload && sudo systemctl enable --now orbit-tools
 #
-# Portas no servidor: 8000 trajetory-analysis, 8080 TrajectoryOrbitPropag, 8501 trajectory-coordinate-converter,
-# 8010 orbit-tools. Para mudar a porta, edite o ExecStart (sudo systemctl edit --full orbit-tools).
+# Escuta só na própria máquina; um proxy reverso (nginx) publica na rede. Para servir direto, use --host 0.0.0.0.
+# Para mudar a porta: sudo systemctl edit --full orbit-tools.
 
 [Unit]
 Description=orbit-tools (elementos orbitais, passagens, trajetórias para rastreio, conversões)
@@ -14,12 +16,12 @@ Wants=network-online.target
 User=trajetoria
 Group=trajetoria
 WorkingDirectory=/opt/apps/orbit-tools/backend
-# Configuração da instalação (opcional): locais e radares próprios, proxy, limites. Fora do git e legível só
-# pelo root, porque a URL do proxy pode ter senha. Modelo em deploy/orbit-tools.env.example.
+# Configuração da instalação (opcional): proxy, limites, outro caminho para locais e radares. Fora do git e
+# legível só pelo root, porque a URL do proxy pode ter senha. Modelo em deploy/orbit-tools.env.example.
 EnvironmentFile=-/etc/orbit-tools/orbit-tools.env
 # Um processo só: a manutenção (EOP, SATCAT, limpeza de caches) e o limite de consultas ao Space-Track ficam
 # na memória do processo. As requisições já rodam em paralelo nas threads do uvicorn.
-ExecStart=/opt/apps/orbit-tools/backend/.venv/bin/uvicorn orbit_tools.api.main:app --host 0.0.0.0 --port 8010
+ExecStart=/opt/apps/orbit-tools/backend/.venv/bin/uvicorn orbit_tools.api.main:app --host 127.0.0.1 --port 8010
 Restart=always
 RestartSec=3
 

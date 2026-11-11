@@ -115,4 +115,4 @@ Para cada par de conjuntos sucessivos do mesmo objeto, propaga os dois a partir 
 
 ## 11. Arquivos (`formats.py`)
 
-Formatos, cabeçalhos, casas decimais e nomes idênticos aos do app antigo, com H0 no nome (os sistemas de rastreio do CLBI e do CLA dependem disso). Linhas terminadas em `\n`, como no servidor Linux onde o app antigo roda.
+Formatos, cabeçalhos, casas decimais e nomes idênticos aos do app antigo, com H0 no nome (os sistemas de rastreio que consomem esses arquivos dependem disso). Linhas terminadas em `\n`, como no servidor Linux onde o app antigo roda.

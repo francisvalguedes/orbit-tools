@@ -186,7 +186,7 @@ Substitui a tabela colorida da página 05. A seleção é feita por três caminh
 
 **Geração:** para as passagens selecionadas, na taxa escolhida (padrão: a do radar, 100 Hz), de H0 até HF (ou só o trecho detectável). Formatos, escolhidos por caixa de seleção: `.trn` e `.trj` (cabeçalhos idênticos aos antigos), CSV completo (tempo, AZ/EL/D, ENU, ECEF, geodésicas, taxas), resumo CSV, elementos usados. Sai um ZIP em fluxo.
 
-Os sistemas de rastreio do CLBI e do CLA leem só o `.trn` (ENU sem tempo), e o H0 vai no **nome do arquivo**, no padrão antigo: `obj-<NORAD>-<AAAA_MM_DD>-H0-<HH_MM_SS>TU.trn` (e `100Hz_obj-...` na taxa do radar, `pobj-...trj`). O nome só tem segundos inteiros; por isso o H0 é sempre alinhado à grade de segundos UTC, inclusive no "só o trecho detectável", para que o nome represente o H0 exato. O padrão do nome fica configurável (modelo com `{norad}`, `{h0:%Y_%m_%d-H0-%H_%M_%S}`, `{rate}`), com o antigo como padrão. O CSV completo com tempo absoluto continua como opção para análise, não para os sistemas de rastreio.
+Os sistemas de rastreio que consomem esses arquivos leem só o `.trn` (ENU sem tempo), e o H0 vai no **nome do arquivo**, no padrão antigo: `obj-<NORAD>-<AAAA_MM_DD>-H0-<HH_MM_SS>TU.trn` (e `100Hz_obj-...` na taxa do radar, `pobj-...trj`). O nome só tem segundos inteiros; por isso o H0 é sempre alinhado à grade de segundos UTC, inclusive no "só o trecho detectável", para que o nome represente o H0 exato. O padrão do nome fica configurável (modelo com `{norad}`, `{h0:%Y_%m_%d-H0-%H_%M_%S}`, `{rate}`), com o antigo como padrão. O CSV completo com tempo absoluto continua como opção para análise, não para os sistemas de rastreio.
 
 O limite deixa de ser "30 objetos" e passa a ser o total de pontos (`ORBIT_MAX_EXPORT_POINTS`, padrão 50 milhões).
 
@@ -246,7 +246,7 @@ Só com dados públicos (elementos do Celestrak) e locais fictícios, então as 
 
 ## 7. Conteúdo que não entra no repositório
 
-- Locais e radares dos apps antigos (`confLocalWGS84.csv`, `confRadar.csv`), as constantes `GAMA_*` do conversor e o `sites.json` do trajetory-analysis.
+- Locais e radares dos apps antigos (`confLocalWGS84.csv`, `confRadar.csv`), as constantes `GAMA_*` do conversor.
 - Os CSVs `p*_exemplo.csv` do conversor, que usam um local de referência real: refazer com um local fictício.
 
 Podem entrar: `RCS.csv` e `norad_id.csv` (catálogo público) e elementos públicos do Celestrak para teste. Licença MIT, como os três repositórios de origem.
@@ -269,7 +269,7 @@ Cada fase termina com testes, ruff, oxlint e build sem erros, e com o app rodand
 
 **Fase 6. Distribuição.** `Dockerfile` em dois estágios e `docker compose`; unidade systemd; documentação de uso, cálculo e formatos em `docs/`; espelho público (Hugging Face Spaces ou Render).
 
-**Fase 7. Transição.** Uso em paralelo com os apps antigos no CLBI e no CLA; depois, arquivar os dois repositórios com aviso apontando para o orbit-tools.
+**Fase 7. Transição.** Uso em paralelo com os apps antigos nas instalações que os usam; depois, arquivar os dois repositórios com aviso apontando para o orbit-tools.
 
 ## 9. Decisões e pontos em aberto
 

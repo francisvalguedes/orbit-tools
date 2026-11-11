@@ -37,7 +37,7 @@ Elementos no mesmo formato OMM, ajustados pelo Celestrak a partir das efeméride
 
 ### Determinação de órbita com dados de rastreio próprios
 
-Ajustar elementos aos dados dos radares do CLBI e do CLA (correção diferencial), gerando elementos próprios mais precisos para o próximo rastreio do mesmo objeto. Seria a maior melhoria de precisão possível, mas é um projeto à parte: precisa dos dados de rastreio (que não podem ir para o repositório público) e de validação cuidadosa.
+Ajustar elementos aos dados de rastreio dos próprios radares (correção diferencial), gerando elementos próprios mais precisos para o próximo rastreio do mesmo objeto. Seria a maior melhoria de precisão possível, mas é um projeto à parte: precisa dos dados de rastreio (que não podem ir para o repositório público) e de validação cuidadosa.
 
 ### Alternativas avaliadas e descartadas
 
