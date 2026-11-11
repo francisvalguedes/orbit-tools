@@ -1,0 +1,35 @@
+# Serviço systemd do orbit-tools. Instalação em docs/implantacao.md:
+#   sudo cp deploy/orbit-tools.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now orbit-tools
+#
+# Portas no servidor: 8000 trajetory-analysis, 8080 TrajectoryOrbitPropag, 8501 trajectory-coordinate-converter,
+# 8010 orbit-tools. Para mudar a porta, edite o ExecStart (sudo systemctl edit --full orbit-tools).
+
+[Unit]
+Description=orbit-tools (elementos orbitais, passagens, trajetórias para rastreio, conversões)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=orbittools
+Group=orbittools
+WorkingDirectory=/opt/apps/orbit-tools/backend
+# Configuração da instalação (opcional): locais e radares próprios, proxy, limites. Fora do git e legível só
+# pelo root, porque a URL do proxy pode ter senha. Modelo em deploy/orbit-tools.env.example.
+EnvironmentFile=-/etc/orbit-tools/orbit-tools.env
+# Um processo só: a manutenção (EOP, SATCAT, limpeza de caches) e o limite de consultas ao Space-Track ficam
+# na memória do processo. As requisições já rodam em paralelo nas threads do uvicorn.
+ExecStart=/opt/apps/orbit-tools/backend/.venv/bin/uvicorn orbit_tools.api.main:app --host 0.0.0.0 --port 8010
+Restart=always
+RestartSec=3
+
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+# Única pasta gravável: caches (Celestrak, SATCAT, EOP), conjuntos de elementos e ZIPs gerados.
+# Deve existir antes de o serviço iniciar; se mudar ORBIT_DATA_DIR, use o mesmo caminho aqui.
+ReadWritePaths=/opt/apps/orbit-tools/dados
+
+[Install]
+WantedBy=multi-user.target
