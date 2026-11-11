@@ -1,6 +1,6 @@
-# Serviço systemd do orbit-tools, com os valores padrão de docs/implantacao.md (usuário trajetoria, código em
-# /opt/apps/orbit-tools). Com outros nomes, troque ao copiar, como no guia:
-#   sed -e 's/trajetoria/<usuário>/g' -e 's#/opt/apps/orbit-tools#<pasta>#g' deploy/orbit-tools.service \
+# Serviço systemd do orbit-tools, com os valores padrão de docs/implantacao_systemd.md (usuário mirante, código em
+# /opt/orbit-tools). Com outros nomes, troque ao copiar, como no guia:
+#   sed -e 's/mirante/<usuário>/g' -e 's#/opt/orbit-tools#<pasta>#g' deploy/orbit-tools.service \
 #     | sudo tee /etc/systemd/system/orbit-tools.service > /dev/null
 #   sudo systemctl daemon-reload && sudo systemctl enable --now orbit-tools
 #
@@ -13,15 +13,15 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-User=trajetoria
-Group=trajetoria
-WorkingDirectory=/opt/apps/orbit-tools/backend
+User=mirante
+Group=mirante
+WorkingDirectory=/opt/orbit-tools/backend
 # Configuração da instalação (opcional): proxy, limites, outro caminho para locais e radares. Fora do git e
 # legível só pelo root, porque a URL do proxy pode ter senha. Modelo em deploy/orbit-tools.env.example.
 EnvironmentFile=-/etc/orbit-tools/orbit-tools.env
 # Um processo só: a manutenção (EOP, SATCAT, limpeza de caches) e o limite de consultas ao Space-Track ficam
 # na memória do processo. As requisições já rodam em paralelo nas threads do uvicorn.
-ExecStart=/opt/apps/orbit-tools/backend/.venv/bin/uvicorn orbit_tools.api.main:app --host 127.0.0.1 --port 8010
+ExecStart=/opt/orbit-tools/backend/.venv/bin/uvicorn orbit_tools.api.main:app --host 127.0.0.1 --port 8010
 Restart=always
 RestartSec=3
 
@@ -31,7 +31,7 @@ ProtectHome=true
 PrivateTmp=true
 # Única pasta gravável: caches (Celestrak, SATCAT, EOP), conjuntos de elementos e ZIPs gerados.
 # Deve existir antes de o serviço iniciar; se mudar ORBIT_DATA_DIR, use o mesmo caminho aqui.
-ReadWritePaths=/opt/apps/orbit-tools/dados
+ReadWritePaths=/opt/orbit-tools/dados
 
 [Install]
 WantedBy=multi-user.target
