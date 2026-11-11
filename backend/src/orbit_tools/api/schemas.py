@@ -154,6 +154,55 @@ class TrajectoryResponse(BaseModel):
     el_rate: Series
 
 
+# --- Órbita ------------------------------------------------------------------------------------
+
+
+class EphemerisRequest(BaseModel):
+    set_id: str
+    norad: int
+    epoch: str  # identifica o conjunto de elementos do objeto
+    start: datetime  # UTC
+    duration_s: float = Field(gt=0)
+    step_s: float = Field(default=30.0, gt=0)
+    site: Site | None = None  # com local: ENU e AZ/EL/D
+
+
+class EphemerisResponse(BaseModel):
+    time: list[str]  # ISO UTC (ms)
+    t: Series  # s desde o início
+    error: list[int]  # código de erro do SGP4 (0 = ok)
+    teme_x: Series  # m
+    teme_y: Series
+    teme_z: Series
+    teme_vx: Series  # m/s
+    teme_vy: Series
+    teme_vz: Series
+    ecef_x: Series  # ITRS, m
+    ecef_y: Series
+    ecef_z: Series
+    ecef_vx: Series
+    ecef_vy: Series
+    ecef_vz: Series
+    lat: Series
+    lon: Series
+    height: Series
+    # Órbita como vista da Terra no instante inicial (TEME girado pela rotação desse instante), para o globo
+    orbit_x: Series
+    orbit_y: Series
+    orbit_z: Series
+    e: Series | None = None
+    n: Series | None = None
+    u: Series | None = None
+    az: Series | None = None
+    el: Series | None = None
+    range: Series | None = None
+    period_s: float
+    perigee_km: float
+    apogee_km: float
+    inclination_deg: float
+    epoch_age_days: float  # no início do intervalo
+
+
 class ExportFormats(BaseModel):
     trn: bool = True  # obj-…trn a 1 Hz
     trj: bool = True  # pobj-…trj a 1 Hz

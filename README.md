@@ -4,7 +4,7 @@
 
 Aplicação web de propagação de órbita, passagens sobre sensores, geração de trajetórias para rastreio e conversão de coordenadas. Unifica e substitui os apps [TrajectoryOrbitPropag](https://github.com/francisvalguedes/TrajectoryOrbitPropag) e [trajectory-coordinate-converter](https://github.com/francisvalguedes/trajectory-coordinate-converter).
 
-**Estado:** em desenvolvimento. Ver o [planejamento](docs/planejamento.md).
+**Estado:** os quatro módulos funcionam; falta a distribuição (Docker) e o uso em paralelo com os apps antigos. Ver o [planejamento](docs/planejamento.md) e o [cálculo](docs/calculo.md).
 
 ## Módulos
 

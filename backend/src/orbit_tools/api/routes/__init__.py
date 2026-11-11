@@ -1,3 +1,3 @@
-from . import convert, elements, meta, passes
+from . import convert, elements, meta, orbit, passes
 
-routers = [meta.router, convert.router, elements.router, passes.router]
+routers = [meta.router, convert.router, elements.router, passes.router, orbit.router]

@@ -274,3 +274,50 @@ export interface ExportResult {
   file_name: string
   files: number
 }
+
+// --- Órbita -------------------------------------------------------------------------------------
+
+export interface EphemerisRequest {
+  set_id: string
+  norad: number
+  epoch: string
+  start: string // UTC, ISO sem fuso
+  duration_s: number
+  step_s: number
+  site: Site | null
+}
+
+export interface EphemerisResponse {
+  time: string[]
+  t: Series
+  error: number[]
+  teme_x: Series
+  teme_y: Series
+  teme_z: Series
+  teme_vx: Series
+  teme_vy: Series
+  teme_vz: Series
+  ecef_x: Series
+  ecef_y: Series
+  ecef_z: Series
+  ecef_vx: Series
+  ecef_vy: Series
+  ecef_vz: Series
+  lat: Series
+  lon: Series
+  height: Series
+  orbit_x: Series
+  orbit_y: Series
+  orbit_z: Series
+  e: Series | null
+  n: Series | null
+  u: Series | null
+  az: Series | null
+  el: Series | null
+  range: Series | null
+  period_s: number
+  perigee_km: number
+  apogee_km: number
+  inclination_deg: number
+  epoch_age_days: number
+}

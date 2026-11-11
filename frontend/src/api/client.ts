@@ -8,6 +8,8 @@ import type {
   DmsResult,
   ElementRecord,
   ElementSet,
+  EphemerisRequest,
+  EphemerisResponse,
   ExportRequest,
   ExportResult,
   KinematicsRequest,
@@ -134,6 +136,9 @@ export const api = {
       postStream<{ rows: CompareRow[] }>('/elements/compare', { set_id: setId }, onProgress, signal).then(
         (r) => r.rows,
       ),
+  },
+  orbit: {
+    ephemeris: (req: EphemerisRequest, signal?: AbortSignal) => post<EphemerisResponse>('/orbit/ephemeris', req, signal),
   },
   passes: {
     search: (req: SearchRequest, onProgress: (p: Progress) => void, signal?: AbortSignal) =>

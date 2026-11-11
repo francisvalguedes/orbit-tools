@@ -265,7 +265,7 @@ Cada fase termina com testes, ruff, oxlint e build sem erros, e com o app rodand
 
 **Fase 4. Passagens** (concluída). Rotas `/api/passes/search` (fluxo NDJSON, limite de custo objeto·dia), `/api/passes/trajectory` e `/api/passes/export` (ZIP com os nomes antigos, válido por 2 h); radares no navegador; tabela com seleção, regras salvas, linha do tempo com conflitos e "resolver conflitos" por prioridade, detalhe da passagem (polar, taxas, globo) e geração dos arquivos, inteira ou só o trecho detectável. Medido: 156 objetos × 1 dia em 0,5 s; 410 mil pontos a 100 Hz gerados em 0,8 s.
 
-**Fase 5. Órbita.** Efemérides, globo com órbita e traço no solo.
+**Fase 5. Órbita** (concluída). Rota `/api/orbit/ephemeris` (TEME, ITRS e geodésicas com velocidades; ENU e AZ/EL/D com local); globo com traço no solo, trajetória no referencial fixo, a órbita vista no instante inicial (posições TEME giradas pela rotação desse instante, sem depender da transformação inercial do Cesium) e o objeto animado; gráficos, tabela e CSV.
 
 **Fase 6. Distribuição.** `Dockerfile` em dois estágios e `docker compose`; unidade systemd; documentação de uso, cálculo e formatos em `docs/`; espelho público (Hugging Face Spaces ou Render).
 
