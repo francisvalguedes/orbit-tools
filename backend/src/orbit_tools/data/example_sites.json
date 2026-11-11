@@ -1,0 +1,21 @@
+{
+  "_comment": "Locais e radares de exemplo, fictícios. Uma instalação pode usar os seus com ORBIT_SITES_FILE (arquivo fora do git). Coordenadas geodésicas em graus e altura acima do elipsoide em m.",
+  "sites": [
+    { "name": "Exemplo-A", "lat": -10.0, "lon": -40.0, "height": 0.0 },
+    { "name": "Exemplo-B", "lat": -10.4, "lon": -39.6, "height": 120.0 }
+  ],
+  "radars": [
+    {
+      "name": "Radar-exemplo",
+      "pt": 60.0,
+      "gt": 42.0,
+      "gr": 42.0,
+      "lt": 1.4,
+      "lr": 1.6,
+      "fhz": 5400.0,
+      "sr": -140.0,
+      "snr": 0.0,
+      "spt": 0.01
+    }
+  ]
+}

@@ -10,6 +10,9 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 import { theme } from './theme'
 
+// O Cesium busca workers e assets nesta URL (copiados no build por vite.config.ts)
+Object.assign(window, { CESIUM_BASE_URL: `${import.meta.env.BASE_URL}cesium` })
+
 const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false } },
 })

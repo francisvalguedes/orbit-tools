@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:5173"]
     # Caches (consultas ao Celestrak, EOP, conjuntos de elementos). Em Docker, deve ser um volume.
     data_dir: Path = REPO_ROOT / "dados"
+    # Locais e radares oferecidos a todos os usuários. Sem arquivo, os exemplos fictícios do pacote.
+    # Uma instalação pode apontar para um arquivo seu, fora do git (mesmo formato de data/example_sites.json).
+    sites_file: Path | None = None
+    # Pontos por requisição de conversão
+    max_points: int = 500_000
 
 
 settings = Settings()

@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .. import __version__
 from ..settings import settings
-from .routes import router
+from .routes import routers
 
 app = FastAPI(
     title="orbit-tools",
@@ -20,7 +20,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(router)
+for router in routers:
+    app.include_router(router)
 
 # Os JS e CSS do Vite têm hash no nome e podem ficar em cache; o index.html não, senão o navegador
 # continua carregando a versão anterior do app depois de uma atualização.

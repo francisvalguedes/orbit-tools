@@ -2,6 +2,7 @@ import {
   ActionIcon,
   AppShell,
   Badge,
+  Burger,
   Group,
   SegmentedControl,
   Text,
@@ -9,9 +10,9 @@ import {
   useComputedColorScheme,
   useMantineColorScheme,
 } from '@mantine/core'
+import { useDisclosure } from '@mantine/hooks'
 import { IconMoon, IconSun } from '@tabler/icons-react'
-import { useQuery } from '@tanstack/react-query'
-import { api } from './api/client'
+import { useMeta } from './api/client'
 import { ConvertPage, ElementsPage, OrbitPage, PassesPage } from './features/pages'
 import { MODULES, type ModuleId, useModule } from './modules'
 
@@ -44,17 +45,24 @@ function Logo() {
 export default function App() {
   const { setColorScheme } = useMantineColorScheme()
   const scheme = useComputedColorScheme('dark')
-  const meta = useQuery({ queryKey: ['meta'], queryFn: api.meta, staleTime: Infinity, retry: 1 })
+  const meta = useMeta()
   const [module, setModule] = useModule()
+  // No celular a barra lateral (parâmetros do módulo) abre pelo botão de menu
+  const [navOpened, { toggle: toggleNav, close: closeNav }] = useDisclosure(false)
   const Page = PAGES[module]
 
   return (
-    <AppShell header={{ height: 56 }} navbar={{ width: 320, breakpoint: 'sm' }} padding="md">
+    <AppShell
+      header={{ height: 56 }}
+      navbar={{ width: 320, breakpoint: 'sm', collapsed: { mobile: !navOpened } }}
+      padding="md"
+    >
       <AppShell.Header>
-        <Group h="100%" px="md" justify="space-between" wrap="nowrap">
+        <Group h="100%" px={{ base: 'xs', sm: 'md' }} justify="space-between" wrap="nowrap" gap="xs">
           <Group gap="sm" wrap="nowrap">
+            <Burger opened={navOpened} onClick={toggleNav} hiddenFrom="sm" size="sm" aria-label="Parâmetros do módulo" />
             <Logo />
-            <Text fw={700} size="lg">
+            <Text fw={700} size="lg" visibleFrom="md">
               orbit-tools
             </Text>
           </Group>
@@ -62,8 +70,12 @@ export default function App() {
           <SegmentedControl
             size="xs"
             value={module}
-            onChange={(v) => setModule(v as ModuleId)}
+            onChange={(v) => {
+              setModule(v as ModuleId)
+              closeNav()
+            }}
             data={MODULES.map((m) => ({ value: m.id, label: m.label }))}
+            style={{ minWidth: 0, overflowX: 'auto' }}
           />
 
           <Group gap="xs" wrap="nowrap">
@@ -73,6 +85,7 @@ export default function App() {
                 color={meta.isError ? 'red' : meta.data ? 'teal' : 'gray'}
                 size="lg"
                 radius="sm"
+                visibleFrom="sm"
               >
                 {meta.data ? `v${meta.data.version}` : 'API'}
               </Badge>

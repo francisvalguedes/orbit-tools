@@ -197,10 +197,9 @@ Um objeto: intervalo e passo livres, saída em TEME, ITRS/ECEF, geodésicas e, s
 
 ### 4.5 Conversões
 
-- **Converter pontos** (uma aba no lugar das antigas 02, 03 e 05): sistema de entrada (geodésicas, ECEF, ENU, AZ/EL/D), local de referência, unidades (m/km, graus/rad), entrada manual ou CSV; saída em todos os sistemas.
+- **Converter pontos** (uma aba no lugar das antigas 02, 03, 04 e 05): sistema de entrada (geodésicas, ECEF, ENU, AZ/EL/D), local de referência, unidades (m/km, graus/rad), entrada manual ou CSV; saída em todos os sistemas e em ENU e AZ/EL/D de quantos locais forem escolhidos. O ENU¹→ENU² da antiga página 04 é entrada em ENU de um local com saída em outro, então não precisou de aba própria.
 - **GMS ↔ decimal**, aceitando também os formatos com hemisfério (`5°55'S`).
-- **Entre referenciais locais** (ENU¹→ENU²).
-- **Velocidade e aceleração**, com gráficos.
+- **Velocidade e aceleração**, com gráficos, tabela e globo. Ângulos em graus (o app antigo exportava em radianos).
 - Elipsoide WGS84 ou WGS72, já suportado pelo `geodesy.py`.
 - Todas mostram os pontos no globo.
 
@@ -259,7 +258,7 @@ Cada fase termina com testes, ruff, oxlint e build sem erros, e com o app rodand
 
 **Fase 1. Núcleo de cálculo** (concluída). `time`, `eop`, `frames`, `geodesy`, `kinematics`, `elements`, `propagation`, `passes`, `radar`, `compare`, `formats`; script de referências do app antigo; testes de paridade. Resultados e diferenças documentadas em [calculo.md](calculo.md).
 
-**Fase 2. Conversões** (API e interface). Valida a base do frontend com a parte mais simples.
+**Fase 2. Conversões** (concluída). Rotas `/api/convert/*`, locais de exemplo no `/api/meta` (substituíveis por `ORBIT_SITES_FILE`), cadastro de locais no navegador, abas Converter pontos, GMS e Velocidade e aceleração, globo e gráficos sob demanda, layout para celular.
 
 **Fase 3. Elementos.** Fontes, cache, `set_id`, IndexedDB, tabela, comparação.
 

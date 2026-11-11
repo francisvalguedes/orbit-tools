@@ -60,6 +60,7 @@ Copiado do trajetory-analysis: `v[i] = (x[i+1] − x[i−1]) / 2h` e `a[i] = (x[
 
 - Velocidade: idêntica nos pontos internos; nas bordas, diferença de 2ª ordem em vez de 1ª (mais exata).
 - Aceleração: a página antiga aplicava `np.gradient` duas vezes, o que equivale a `(x[i+2] − 2x[i] + x[i−2]) / 4h²`, com o dobro do erro de truncamento e mais suavização. Aqui é a segunda diferença com os vizinhos imediatos, NaN nas bordas.
+- Unidades: azimute e elevação e suas derivadas em graus (°, °/s, °/s²); a página antiga exportava em radianos. O azimute é derivado depois de desenrolado (sem o salto em 0/360°), como antes.
 
 ## 7. Elementos (`elements.py`)
 

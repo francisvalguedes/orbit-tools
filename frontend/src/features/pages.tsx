@@ -48,18 +48,4 @@ export function OrbitPage() {
   )
 }
 
-export function ConvertPage() {
-  return (
-    <Placeholder
-      title="Conversões"
-      summary="Conversões de coordenadas e cinemática de trajetórias."
-      items={[
-        'Converter pontos entre geodésicas, ECEF, ENU e azimute, elevação e distância',
-        'Graus, minutos e segundos ↔ graus decimais',
-        'Entre referenciais locais (ENU¹ → ENU²)',
-        'Velocidade e aceleração de trajetórias',
-      ]}
-      phase="fase 2"
-    />
-  )
-}
+export { ConvertPage } from './convert/ConvertPage'

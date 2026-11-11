@@ -3,3 +3,9 @@ body,
 #root {
   height: 100%;
 }
+
+/* Cesium: rodapé de créditos menor e legível no tema escuro */
+.cesium-widget-credits {
+  font-size: 11px;
+  opacity: 0.8;
+}
