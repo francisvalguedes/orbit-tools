@@ -82,7 +82,7 @@ journalctl -u orbit-tools -f          # logs
 Pontos do serviço:
 
 - **Um processo só** (sem `--workers`): a manutenção em segundo plano (renovar EOP e SATCAT, apagar caches vencidos) e o limite de consultas ao Space-Track ficam na memória do processo. Com vários processos, cada um baixaria os mesmos arquivos e o limite deixaria de valer. As requisições já rodam em paralelo nas threads do uvicorn.
-- **`ProtectSystem=strict`** deixa o sistema de arquivos somente leitura para o serviço; o **`ReadWritePaths`** libera só a pasta de dados. Sem ele, a busca no Celestrak falha com *500 Internal Server Error* (o log mostra um erro ao gravar em `dados/cache`). Se mudar `ORBIT_DATA_DIR`, use o mesmo caminho nos dois lugares, e a pasta deve existir antes de o serviço iniciar.
+- **`ProtectSystem=strict`** deixa o sistema de arquivos somente leitura para o serviço; o **`ReadWritePaths`** libera só a pasta de dados. Sem ele, a busca de elementos (Celestrak ou Space-Track) falha com *500 Internal Server Error* e o log mostra `Read-only file system` ao gravar em `dados/cache` ou `dados/sets`. Se mudar `ORBIT_DATA_DIR`, use o mesmo caminho nos dois lugares, e a pasta deve existir antes de o serviço iniciar.
 - **Outra porta:** `sudo systemctl edit --full orbit-tools`, troque `--port 8010` no `ExecStart` e reinicie. Escolha uma porta que nenhum outro app do servidor use.
 
 ### nginx
@@ -165,6 +165,28 @@ O servidor lê os arquivos ao iniciar: reinicie depois de editar. Se um arquivo 
 
 ## Atualização
 
+Há dois jeitos de atualizar. Use sempre o mesmo numa instalação, porque eles deixam o repositório em estados diferentes.
+
+**Com o frontend compilado pelo GitHub (sem Node no servidor).** O [scripts/install-release.sh](../scripts/install-release.sh) baixa o código e o `dist.tar.gz` compilado pelo GitHub Actions, confere se os dois são do mesmo commit, troca o código e roda o `uv sync`:
+
+```bash
+cd /opt/apps/orbit-tools
+sudo -H -u trajetoria ./scripts/install-release.sh build-main   # último commit da main
+sudo -H -u trajetoria ./scripts/install-release.sh v0.2.0       # ou uma versão publicada
+sudo systemctl restart orbit-tools
+```
+
+O script deixa o repositório fora de qualquer branch (*detached HEAD*, `git status` mostra `HEAD detached at ...`). Por isso, nessa instalação, o `git pull` falha com "You are not currently on a branch": atualize sempre rodando o script de novo. Se ele avisar que o frontend é de outro commit, o build do GitHub Actions ainda está rodando; tente de novo em alguns minutos.
+
+Se o servidor estiver num commit que ainda não tem o script, ou para voltar a atualizar com `git pull`, volte para a branch antes:
+
+```bash
+sudo -u trajetoria git -C /opt/apps/orbit-tools switch main
+sudo -u trajetoria git -C /opt/apps/orbit-tools pull
+```
+
+**Compilando no servidor (com Node).**
+
 ```bash
 sudo -u trajetoria -H bash -c '
   cd /opt/apps/orbit-tools && git pull &&
@@ -173,9 +195,9 @@ sudo -u trajetoria -H bash -c '
 sudo systemctl restart orbit-tools
 ```
 
-O `git pull` não mexe na pasta `dados/` nem em `config/local/` (fora do git). O backend envia o `index.html` com `Cache-Control: no-cache`, então o navegador carrega a versão nova sozinho; se a interface parecer não ter mudado, recarregue com **Ctrl+Shift+R**.
+Nenhum dos dois mexe na pasta `dados/` nem em `config/local/` (fora do git). O backend envia o `index.html` com `Cache-Control: no-cache`, então o navegador carrega a versão nova sozinho; se a interface parecer não ter mudado, recarregue com **Ctrl+Shift+R**.
 
-Se o arquivo do serviço mudar no repositório (confira com `git log -- deploy/`), copie de novo como na instalação (com o mesmo `sed`, se usou outros nomes) e recarregue com `sudo systemctl daemon-reload && sudo systemctl restart orbit-tools`.
+A atualização não muda o serviço instalado em `/etc/systemd/system/`. Se o arquivo do serviço mudar no repositório (confira com `git log -- deploy/` ou `diff /etc/systemd/system/orbit-tools.service deploy/orbit-tools.service`), copie de novo como na instalação (com o mesmo `sed`, se usou outros nomes) e recarregue com `sudo systemctl daemon-reload && sudo systemctl restart orbit-tools`.
 
 ## Frontend compilado em outra máquina (sem Node no servidor)
 
@@ -213,7 +235,11 @@ sudo systemctl restart orbit-tools
 | Barra de progresso parada e o resultado chega todo de uma vez | nginx sem `proxy_buffering off` |
 | Busca ou geração de ZIP grande termina com erro 504 | `proxy_read_timeout` do nginx menor que o tempo do cálculo |
 | Envio de arquivo de elementos com erro 413 | `client_max_body_size` do nginx menor que o arquivo |
-| Busca no Celestrak com erro 500 | Pasta de dados ausente ou fora do `ReadWritePaths` |
+| Busca de elementos (Celestrak ou Space-Track) com erro 500, `Read-only file system` no log | Pasta de dados fora do `ReadWritePaths` do serviço; o serviço instalado pode ser de uma versão antiga: compare com `deploy/orbit-tools.service` e copie de novo |
+| Busca de elementos com erro 500, `PermissionError` no log | Pasta de dados ou subpasta de outro dono: `sudo chown -R trajetoria: /opt/apps/orbit-tools/dados` |
+| `git pull` falha com "You are not currently on a branch" | Instalação feita com o `install-release.sh`, que deixa o repositório fora de branch; atualize rodando o script (seção Atualização) |
+| Proxy configurado no shell, mas o serviço não acessa a internet | O systemd não lê o `/etc/environment` nem o `.bashrc`; ponha `HTTPS_PROXY` em `/etc/orbit-tools/orbit-tools.env` |
+| `journalctl -u orbit-tools` sem nenhuma linha | Falta `sudo`: só os grupos `adm` e `systemd-journal` veem o log do serviço |
 | "Celestrak indisponível" ou "Space-Track indisponível" | Servidor sem internet ou proxy não configurado |
 | EOP "nenhum (UT1 = UTC…)" no módulo Passagens | Download do EOP ainda não terminou ou falhou (`journalctl -u orbit-tools`); o cálculo segue, com erro de dezenas de metros |
 | Globo cinza, sem mapa | O navegador do usuário não acessa os servidores de tiles |
