@@ -106,10 +106,10 @@ Por padrão, todos os usuários veem dois locais e um radar fictícios. Os reais
 
 ```bash
 cd /opt/apps/orbit-tools
-sudo -u orbittools mkdir -p config/local
-sudo -u orbittools cp config/locais.exemplo.csv config/local/locais.csv     # ou copie o seu confLocalWGS84.csv
-sudo -u orbittools cp config/radares.exemplo.csv config/local/radares.csv   # ou o seu confRadar.csv
-sudo -u orbittools nano config/local/locais.csv
+sudo -u trajetoria mkdir -p config/local
+sudo -u trajetoria cp config/locais.exemplo.csv config/local/locais.csv     # ou copie o seu confLocalWGS84.csv
+sudo -u trajetoria cp config/radares.exemplo.csv config/local/radares.csv   # ou o seu confRadar.csv
+sudo -u trajetoria nano config/local/locais.csv
 sudo systemctl restart orbit-tools
 ```
 
