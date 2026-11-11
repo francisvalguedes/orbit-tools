@@ -105,7 +105,7 @@ def summary_rows(
             "NORAD_CAT_ID": rec["NORAD_CAT_ID"],
             "OBJECT_NAME": rec.get("OBJECT_NAME"),
             "RCS_SIZE": rec.get("RCS_SIZE"),
-            "RCS": p.rcs_m2 if p.rcs_source == "tabela" else 0.0,
+            "RCS": p.rcs_m2 if p.rcs_source in ("tabela", "catalogo") else 0.0,  # 0 = sem RCS, como antes
         }
         if radar is not None:
             row["RCS_MIN"] = float(rcs_min(p.min_range_m, radar))

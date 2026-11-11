@@ -23,3 +23,10 @@ export function fmtTime(s: number): string {
 export function fmtDeg(v: number | null | undefined, digits = 2): string {
   return v == null ? '—' : `${fmtNum(v, digits)}°`
 }
+
+// Acréscimo do orbit-tools
+
+/** "1 conjunto", "2 conjuntos" (número com espaço fino nos milhares). */
+export function plural(n: number, singular: string, pluralForm = `${singular}s`): string {
+  return `${fmtNum(n)} ${n === 1 ? singular : pluralForm}`
+}

@@ -29,7 +29,14 @@ export interface Meta {
   sites: Site[]
   radars: Radar[]
   sites_source: string
-  limits: { max_points: number }
+  limits: {
+    max_points: number
+    max_elements: number
+    max_celestrak_ids: number
+    max_spacetrack_ids: number
+    max_history_days: number
+  }
+  eop: { source: string; first_date: string | null; last_date: string | null; last_observed: string | null }
 }
 
 // --- Conversões ---------------------------------------------------------------------------------
@@ -113,4 +120,59 @@ export interface KinematicsResponse {
   a_az: Series
   a_el: Series
   a_range: Series
+}
+
+// --- Elementos ----------------------------------------------------------------------------------
+
+/** Conjunto de elementos OMM, com os campos completados pelo servidor (PERIAPSIS, OBJECT_TYPE, RCS…). */
+export type ElementRecord = Record<string, string | number | null>
+
+export interface ElementSet {
+  set_id: string
+  records: ElementRecord[]
+  count: number
+  objects: number
+  source: string
+  warnings: string[]
+  not_found: string[]
+  decayed: number[]
+}
+
+export type CelestrakKind = 'catnr' | 'group' | 'name' | 'intdes'
+
+export interface SpaceTrackRequest {
+  username: string
+  password: string
+  mode: 'latest' | 'leo' | 'history'
+  norad_ids: number[]
+  use_app_list: boolean
+  epoch_start?: string | null
+  epoch_end?: string | null
+}
+
+export interface CompareRow {
+  NORAD_CAT_ID: number
+  OBJECT_NAME: string | null
+  EPOCH: string
+  EPOCH_1: string
+  D_ERR_MEAN: number | null
+  D_ERR_MAX: number | null
+  TRACK: number
+  RCS_SIZE: string | null
+  R_ERR_MEAN: number | null
+  I_ERR_MEAN: number | null
+  C_ERR_MEAN: number | null
+  R_ERR_MAX: number | null
+  I_ERR_MAX: number | null
+  C_ERR_MAX: number | null
+  PERIAPSIS: number | null
+  ECCENTRICITY: number | null
+  MEAN_MOTION: number | null
+  DECAY_DATE: string | null
+  SGP4_ERROR: boolean
+}
+
+export interface Progress {
+  fraction: number
+  stage: string
 }

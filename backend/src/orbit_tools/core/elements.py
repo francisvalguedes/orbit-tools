@@ -272,3 +272,36 @@ def latest_per_object(records: Iterable[Mapping[str, object]]) -> list[Record]:
 
 def age_days(record: Mapping[str, object], at: datetime) -> float:
     return (at - epoch(record)) / timedelta(days=1)
+
+
+# Classes de RCS do Space-Track (m²): SMALL < 0,1; MEDIUM 0,1 a 1; LARGE > 1
+def rcs_size(rcs_m2: float) -> str:
+    return "SMALL" if rcs_m2 < 0.1 else "MEDIUM" if rcs_m2 <= 1.0 else "LARGE"
+
+
+def enrich(records: Iterable[Record], catalog: Mapping[int, Mapping[str, str]] | None = None) -> list[Record]:
+    """
+    Completa campos ausentes, sem sobrescrever os que a fonte já trouxe: PERIAPSIS e APOAPSIS (km)
+    calculados dos elementos e, com o catálogo SATCAT, OBJECT_TYPE, RCS (m²), RCS_SIZE e DECAY_DATE.
+    """
+    out = []
+    for r in records:
+        rec = dict(r)
+        if not isinstance(rec.get("PERIAPSIS"), int | float) or not isinstance(rec.get("APOAPSIS"), int | float):
+            perigee, apogee = perigee_apogee_km(rec)
+            rec.setdefault("PERIAPSIS", round(perigee, 3))
+            rec.setdefault("APOAPSIS", round(apogee, 3))
+        info = catalog.get(int(rec["NORAD_CAT_ID"])) if catalog else None
+        if info:
+            for key in ("OBJECT_TYPE", "DECAY_DATE"):
+                if rec.get(key) in (None, "") and info.get(key):
+                    rec[key] = info[key]
+            if rec.get("RCS") in (None, "") and info.get("RCS"):
+                try:
+                    rec["RCS"] = float(info["RCS"])
+                except ValueError:
+                    pass
+        if rec.get("RCS_SIZE") in (None, "") and isinstance(rec.get("RCS"), int | float):
+            rec["RCS_SIZE"] = rcs_size(float(rec["RCS"]))
+        out.append(rec)
+    return out

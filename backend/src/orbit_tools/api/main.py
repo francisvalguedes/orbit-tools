@@ -1,3 +1,6 @@
+import logging
+import threading
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -6,13 +9,55 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from .. import __version__
+from ..cache import DiskCache
 from ..settings import settings
+from ..sources import SourceError, celestrak
+from ..sources import eop as eop_source
+from . import element_sets
 from .routes import routers
+
+log = logging.getLogger(__name__)
+MAINTENANCE_INTERVAL_S = 12 * 3600
+
+
+def maintenance() -> None:
+    """Apaga caches vencidos e renova o EOP quando tem mais de `eop_cache_days`."""
+    removed = element_sets.purge()
+    removed += DiskCache(settings.data_dir / "cache" / "celestrak", settings.celestrak_cache_hours * 3600).purge()
+    if removed:
+        log.info("manutenção: %d arquivos de cache vencidos apagados", removed)
+    try:
+        celestrak.satcat()  # baixa ou renova antes da primeira consulta de usuário (~7 MB)
+    except SourceError as exc:
+        log.warning("SATCAT indisponível: %s", exc)
+    if eop_source.needs_refresh() and not eop_source.refresh():
+        log.warning("EOP não renovado; continua o anterior (%s)", eop_source.current().source)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    stop = threading.Event()
+
+    def loop() -> None:
+        while True:
+            try:
+                maintenance()
+            except Exception:
+                log.exception("falha na manutenção")
+            if stop.wait(MAINTENANCE_INTERVAL_S):
+                return
+
+    if settings.maintenance:
+        threading.Thread(target=loop, daemon=True, name="manutencao").start()
+    yield
+    stop.set()
+
 
 app = FastAPI(
     title="orbit-tools",
     version=__version__,
     description="Elementos orbitais, passagens sobre sensores, trajetórias para rastreio e conversões de coordenadas.",
+    lifespan=lifespan,
 )
 app.add_middleware(
     CORSMiddleware,

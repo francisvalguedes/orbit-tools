@@ -1,4 +1,11 @@
+import os
+import tempfile
 from pathlib import Path
+
+# Antes de qualquer import de orbit_tools.settings: caches numa pasta temporária e sem manutenção
+# em segundo plano (que acessaria a rede para baixar o EOP)
+os.environ["ORBIT_DATA_DIR"] = tempfile.mkdtemp(prefix="orbit-tools-testes-")
+os.environ["ORBIT_MAINTENANCE"] = "false"
 
 import pytest
 

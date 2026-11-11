@@ -144,7 +144,8 @@ Organização: `features/{elements,passes,orbit,convert}`, `sites/` (locais e ra
 
 ### 4.1 Elementos
 
-- **Celestrak** (padrão, sem conta): por NORAD único ou lista, por grupo (`stations`, `active`, `visual`, `last-30-days`...), por nome.
+- **Celestrak** (padrão, sem conta): por NORAD único ou lista, por grupo (`stations`, `active`, `visual`, `last-30-days`...), por nome ou designador internacional. O Celestrak aceita um NORAD por consulta: uma lista vira várias consultas, cada uma em cache por 2 h.
+- **SATCAT do Celestrak** (baixado uma vez por dia, ~7 MB): completa os elementos de qualquer fonte com tipo de objeto (carga, corpo de foguete, detrito), RCS em m² (a mesma origem do `rcs.csv` antigo), classe de RCS e data de reentrada, sem sobrescrever o que a fonte já trouxe. Perigeu e apogeu são calculados dos elementos quando faltam.
 - **Space-Track** (conta do usuário): últimos elementos por lista NORAD (a lista do app, até 650 objetos, ou um CSV do usuário), filtro LEO do app antigo (`MEAN_MOTION > 11.25`, sem decaimento, `RCS_SIZE = Large`, perigeu < 500 km, época de até 1 dia), histórico por intervalo de época (para a comparação).
 - **Arquivo:** OMM em CSV, JSON ou XML, e TLE de 2 ou 3 linhas.
 - Tabela com filtro por tipo (carga, corpo de foguete, detrito), tamanho de RCS, perigeu, idade da época. Avisos de NORAD não encontrados e de objetos já reentrados (como hoje).
@@ -260,7 +261,7 @@ Cada fase termina com testes, ruff, oxlint e build sem erros, e com o app rodand
 
 **Fase 2. Conversões** (concluída). Rotas `/api/convert/*`, locais de exemplo no `/api/meta` (substituíveis por `ORBIT_SITES_FILE`), cadastro de locais no navegador, abas Converter pontos, GMS e Velocidade e aceleração, globo e gráficos sob demanda, layout para celular.
 
-**Fase 3. Elementos.** Fontes, cache, `set_id`, IndexedDB, tabela, comparação.
+**Fase 3. Elementos** (concluída). Rotas `/api/elements/*` (Celestrak, Space-Track, arquivo, reenvio, comparação em fluxo NDJSON), caches em disco com validade, SATCAT, EOP renovado em segundo plano, conjunto atual no IndexedDB com reenvio automático, tabela com filtros e ordenação, comparação com gráfico.
 
 **Fase 4. Passagens.** Busca em fluxo, tabela, regras, linha do tempo e conflitos, radar, visualização (globo, polar, gráficos), exportação ZIP.
 

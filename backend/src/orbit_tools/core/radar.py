@@ -72,9 +72,13 @@ def object_rcs(
     by_size: Mapping[str, float] = RCS_BY_SIZE,
 ) -> tuple[float | None, str]:
     """
-    RCS do objeto (m²) e a origem: `"tabela"`, `"classe"` ou `"desconhecido"` (valor None).
-    Como no app antigo, valores ≤ 0 na tabela contam como ausentes.
+    RCS do objeto (m²) e a origem: `"catalogo"` (campo RCS do registro, vindo do SATCAT), `"tabela"`
+    (rcs.csv do pacote), `"classe"` (RCS_SIZE) ou `"desconhecido"` (valor None). Como no app antigo,
+    valores ≤ 0 contam como ausentes.
     """
+    own = record.get("RCS")
+    if isinstance(own, int | float) and own > 0:
+        return float(own), "catalogo"
     value = table.get(int(record["NORAD_CAT_ID"]))
     if value is not None and value > 0:
         return float(value), "tabela"

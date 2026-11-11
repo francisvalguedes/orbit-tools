@@ -1,8 +1,9 @@
 """Contrato da API. Espelhado à mão em frontend/src/api/types.ts: ao mudar um, mudar o outro."""
 
-from typing import Literal
+from datetime import date
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, SecretStr, StringConstraints, model_validator
 
 Ellipsoid = Literal["wgs84", "wgs72"]
 Series = list[float | None]  # valores não finitos viram null no JSON
@@ -30,6 +31,17 @@ class RadarModel(BaseModel):
 
 class Limits(BaseModel):
     max_points: int
+    max_elements: int
+    max_celestrak_ids: int
+    max_spacetrack_ids: int
+    max_history_days: float
+
+
+class EopInfo(BaseModel):
+    source: str
+    first_date: date | None  # intervalo coberto (o fim é previsão)
+    last_date: date | None
+    last_observed: date | None  # último dia medido
 
 
 class Meta(BaseModel):
@@ -39,6 +51,53 @@ class Meta(BaseModel):
     radars: list[RadarModel]
     sites_source: str  # "exemplos" ou o nome do arquivo da instalação
     limits: Limits
+    eop: EopInfo
+
+
+# --- Elementos ---------------------------------------------------------------------------------
+
+
+class ElementSet(BaseModel):
+    """Conjunto de elementos (OMM, com os campos completados) e o id dele no servidor."""
+
+    set_id: str
+    records: list[dict[str, Any]]
+    count: int
+    objects: int  # NORADs distintos
+    source: str
+    warnings: list[str] = Field(default_factory=list)
+    not_found: list[str] = Field(default_factory=list)  # NORADs/consultas sem elementos
+    decayed: list[int] = Field(default_factory=list)  # NORADs com data de reentrada
+
+
+class CelestrakRequest(BaseModel):
+    kind: Literal["catnr", "group", "name", "intdes"]
+    values: list[Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80)]] = Field(
+        min_length=1
+    )
+
+
+class SpaceTrackRequest(BaseModel):
+    username: str = Field(min_length=1, max_length=200)
+    password: SecretStr  # nunca aparece em repr nem em log
+    mode: Literal["latest", "leo", "history"]
+    norad_ids: list[int] = Field(default_factory=list)
+    use_app_list: bool = False  # lista de ~200 objetos LEO do app antigo
+    epoch_start: date | None = None
+    epoch_end: date | None = None
+
+
+class StoreRequest(BaseModel):
+    records: list[dict[str, Any]] = Field(min_length=1)
+
+
+class StoreResponse(BaseModel):
+    set_id: str
+    count: int
+
+
+class SetRef(BaseModel):
+    set_id: str
 
 
 # --- Conversões --------------------------------------------------------------------------------

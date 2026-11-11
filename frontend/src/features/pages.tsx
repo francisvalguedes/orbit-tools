@@ -1,21 +1,5 @@
 import { Placeholder } from './Placeholder'
 
-export function ElementsPage() {
-  return (
-    <Placeholder
-      title="Elementos orbitais"
-      summary="Obter, carregar, filtrar e comparar elementos orbitais."
-      items={[
-        'Celestrak (sem conta): NORAD, lista de NORAD, grupo ou nome',
-        'Space-Track (conta do usuário, senha não armazenada): últimos elementos, filtro LEO, histórico por época',
-        'Arquivo: OMM em CSV, JSON ou XML, e TLE',
-        'Comparação entre conjuntos sucessivos do mesmo objeto (erro radial, ao longo e através da órbita)',
-      ]}
-      phase="fase 3"
-    />
-  )
-}
-
 export function PassesPage() {
   return (
     <Placeholder
@@ -49,3 +33,4 @@ export function OrbitPage() {
 }
 
 export { ConvertPage } from './convert/ConvertPage'
+export { ElementsPage } from './elements/ElementsPage'
