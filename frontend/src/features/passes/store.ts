@@ -20,9 +20,17 @@ let state: PassesState | null = null
 const listeners = new Set<() => void>()
 const emit = () => listeners.forEach((l) => l())
 
+// Dados de outra versão ou corrompidos são ignorados: quebrariam a página a cada abertura
+const valid = (v: PassesState | undefined): v is PassesState =>
+  v != null &&
+  Array.isArray(v.result?.passes) &&
+  typeof v.set_id === 'string' &&
+  Array.isArray(v.selected) &&
+  v.site != null
+
 void get<PassesState>(KEY)
   .then((v) => {
-    if (v && !state) {
+    if (valid(v) && !state) {
       state = v
       emit()
     }

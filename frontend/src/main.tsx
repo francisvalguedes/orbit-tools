@@ -1,3 +1,6 @@
+// Primeiro: descarta dados guardados por uma versão incompatível antes de os stores os lerem
+import './lib/storageCheck'
+
 import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
 import './index.css'

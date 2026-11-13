@@ -47,6 +47,7 @@ Antes de considerar uma tarefa concluída: testes, ruff, lint e build sem erros.
 - **Comentários:** poucos, explicando o porquê.
 - **Python:** ruff com linha de 120; funções do núcleo vetorizadas com numpy e sem alterar os arrays de entrada.
 - **Servidor sem estado:** o navegador guarda os dados do usuário (elementos, locais, radares, seleções); o servidor só calcula e mantém caches com validade em `ORBIT_DATA_DIR`. Cálculos longos respondem em fluxo (NDJSON).
+- **Dados no navegador:** toda chave `orbit-tools:*` (localStorage ou IndexedDB) é registrada em `frontend/src/lib/storage.ts`, no módulo dono (o teste confere). Mudança que torne incompatível o que já foi gravado (campo renomeado, tipo trocado) exige aumentar `STORAGE_VERSION`.
 - **Paridade:** mudanças de cálculo mantêm os testes de paridade com os apps antigos ou documentam a diferença em `docs/calculo.md`. As referências (`backend/tests/data/legacy/`) são geradas por `backend/tests/legacy/gen_orbit_refs.py` no ambiente do app antigo; não editar à mão.
 - **Formatos de rastreio:** `.trn` e `.trj` idênticos aos do app antigo, com H0 no nome do arquivo; os sistemas de rastreio que consomem esses arquivos dependem disso.
 - **Números na interface:** espaço fino nos milhares e ponto decimal (`fmtNum` em `frontend/src/lib/format.ts`).

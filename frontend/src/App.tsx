@@ -111,7 +111,7 @@ export default function App() {
           </Group>
         </Group>
       </AppShell.Header>
-      <ErrorBoundary key={module}>
+      <ErrorBoundary key={module} module={module}>
         <Page />
       </ErrorBoundary>
     </AppShell>

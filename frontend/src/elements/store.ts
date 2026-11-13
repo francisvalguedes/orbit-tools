@@ -25,9 +25,13 @@ function emit() {
   for (const l of listeners) l()
 }
 
+// Dados de outra versão ou corrompidos são ignorados: quebrariam os módulos a cada abertura
+const valid = (v: CurrentSet | undefined): v is CurrentSet =>
+  v != null && typeof v.set_id === 'string' && Array.isArray(v.records) && Array.isArray(v.sources)
+
 const ready = get<CurrentSet>(KEY)
   .then((v) => {
-    if (v && !state) state = v
+    if (valid(v) && !state) state = v
   })
   .catch(() => undefined) // navegação privada ou IndexedDB bloqueado: só fica na memória
   .finally(() => {
