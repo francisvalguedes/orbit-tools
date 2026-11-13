@@ -18,6 +18,7 @@ const RCS_SOURCE: Record<string, string> = {
 
 const PassCharts = lazy(() => import('./PassCharts'))
 const PointsGlobe = lazy(() => import('../../globe/PointsGlobe'))
+const GLOBE_HEIGHT = 720 // px
 
 /** Percorre as passagens selecionadas sem voltar à tabela; marca ou desmarca a aberta. */
 export function SelectionNavBar({
@@ -166,9 +167,9 @@ export function PassDetail({ pass, set, site }: { pass: PassRow; set: CurrentSet
           </Accordion.Control>
           <Accordion.Panel>
             {open.includes('globe') && (
-              <TrajectoryContent traj={traj} height={460}>
+              <TrajectoryContent traj={traj} height={GLOBE_HEIGHT}>
                 {(data) => (
-                  <PointsGlobe lat={data.lat} lon={data.lon} height={data.height} sites={[site]} line height_px={460} />
+                  <PointsGlobe lat={data.lat} lon={data.lon} height={data.height} sites={[site]} line height_px={GLOBE_HEIGHT} />
                 )}
               </TrajectoryContent>
             )}
