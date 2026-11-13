@@ -8,9 +8,9 @@ import { download, toCsv } from '../../lib/csv'
 import { plural } from '../../lib/format'
 import { useModule } from '../../modules'
 import { Loading } from '../Loading'
-import { conflicts as findConflicts, passId } from './logic'
+import { conflicts as findConflicts, passId, selectionNav } from './logic'
 import { ExportPanel } from './ExportPanel'
-import { PassDetail } from './PassDetail'
+import { PassDetail, SelectionNavBar } from './PassDetail'
 import { PassesTable } from './PassesTable'
 import { RulesPanel } from './RulesPanel'
 import { SearchPanel } from './SearchPanel'
@@ -193,7 +193,15 @@ export function PassesPage() {
                     </Tabs.Panel>
                     <Tabs.Panel value="detail">
                       {focus && set ? (
-                        <PassDetail key={passId(focus)} pass={focus} set={set} site={state.site} />
+                        <Stack gap="md">
+                          <SelectionNavBar
+                            nav={selectionNav(passes, selected, passId(focus))}
+                            isSelected={selected.has(passId(focus))}
+                            onToggle={() => toggle(passId(focus))}
+                            onGo={(id) => updatePasses({ focus: id })}
+                          />
+                          <PassDetail key={passId(focus)} pass={focus} set={set} site={state.site} />
+                        </Stack>
                       ) : (
                         <Alert variant="light">Clique numa passagem da tabela.</Alert>
                       )}

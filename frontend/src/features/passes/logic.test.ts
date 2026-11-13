@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import type { PassRow } from '../../api/types.ts'
-import { conflicts, DEFAULT_RULES, matches, passId, passRef, resolveConflicts } from './logic.ts'
+import { conflicts, DEFAULT_RULES, matches, passId, passRef, resolveConflicts, selectionNav } from './logic.ts'
 
 function pass(norad: number, h0: string, endPt: number, extra: Partial<PassRow> = {}): PassRow {
   return {
@@ -65,7 +65,8 @@ test('regras', () => {
   const r = { ...DEFAULT_RULES }
   assert.equal(matches(a, r, true), true)
   assert.equal(matches({ ...a, MAX_EL: 5 }, r, true), false)
-  assert.equal(matches({ ...a, DURATION: 60 }, r, true), false)
+  assert.equal(matches({ ...a, DURATION: 59 }, r, true), false)
+  assert.equal(matches({ ...a, DURATION: 60 }, r, true), true)
   assert.equal(matches({ ...a, MAX_MARGIN_DB: -2 }, r, true), false)
   assert.equal(matches({ ...a, MAX_MARGIN_DB: -2 }, r, false), true) // sem radar a margem não conta
   assert.equal(matches({ ...a, DECAY_DATE: '2026-11-01' }, r, true), false)
@@ -77,6 +78,17 @@ test('regras', () => {
   assert.equal(matches(pass(5, '2026-11-11T01:30:00.000', 300), night, true), true)
   assert.equal(matches(a, night, true), false)
   assert.equal(matches({ ...a, OBJECT_TYPE: 'DEB' }, { ...r, types: ['PAY'] }, true), false)
+})
+
+test('navegação entre as selecionadas', () => {
+  const all = [a, b, c, d]
+  const sel = new Set([passId(a), passId(c), passId(d)])
+  assert.deepEqual(selectionNav(all, sel, passId(a)), { index: 0, total: 3, prev: null, next: passId(c) })
+  assert.deepEqual(selectionNav(all, sel, passId(c)), { index: 1, total: 3, prev: passId(a), next: passId(d) })
+  assert.deepEqual(selectionNav(all, sel, passId(d)), { index: 2, total: 3, prev: passId(c), next: null })
+  // aberta fora da seleção: vizinhas selecionadas mais próximas
+  assert.deepEqual(selectionNav(all, sel, passId(b)), { index: null, total: 3, prev: passId(a), next: passId(c) })
+  assert.deepEqual(selectionNav(all, new Set(), passId(b)), { index: null, total: 0, prev: null, next: null })
 })
 
 test('referência da passagem inteira ou só do trecho detectável', () => {

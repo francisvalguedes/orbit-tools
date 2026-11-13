@@ -27,7 +27,7 @@ export const DEFAULT_RULES: Rules = {
   minMaxEl: 10,
   h0From: '',
   h0To: '',
-  minDuration: 90, // o app antigo marcava em vermelho passagens com menos de 90 pontos a 1 Hz
+  minDuration: 60, // o app antigo marcava em vermelho as com menos de 90 pontos a 1 Hz; 60 s por decisão operacional
   minMargin: 0,
   minDetectable: null,
   maxAge: 3,
@@ -119,6 +119,32 @@ export function resolveConflicts(selected: PassRow[], priority: Priority, gapS =
     if (ok) kept.push(p)
   }
   return new Set(kept.map(passId))
+}
+
+// --- Navegação ----------------------------------------------------------------------------------------
+
+export interface SelectionNav {
+  index: number | null // posição da passagem aberta entre as selecionadas (0…); null se não está selecionada
+  total: number
+  prev: string | null // passId da selecionada anterior e da seguinte, em ordem de H0
+  next: string | null
+}
+
+/**
+ * Anterior e próxima selecionada em relação à passagem aberta, na ordem da busca (H0). Funciona também
+ * com a passagem aberta fora da seleção: vai para a selecionada mais próxima antes ou depois dela.
+ */
+export function selectionNav(passes: PassRow[], selected: Set<string>, focus: string): SelectionNav {
+  const at = passes.findIndex((p) => passId(p) === focus)
+  const sel = passes.flatMap((p, i) => (selected.has(passId(p)) ? [i] : []))
+  const before = sel.filter((i) => i < at)
+  const after = sel.find((i) => i > at)
+  return {
+    index: selected.has(focus) ? before.length : null,
+    total: sel.length,
+    prev: before.length ? passId(passes[before[before.length - 1]]) : null,
+    next: after != null ? passId(passes[after]) : null,
+  }
 }
 
 // --- Geração ---------------------------------------------------------------------------------------
