@@ -165,7 +165,22 @@ export function OrbitPage() {
       </AppShell.Navbar>
       <AppShell.Main>
         <Stack gap="md">
-          <Title order={3}>Órbita</Title>
+          {/* Objeto e CSV na linha do título: sobra mais altura para o globo */}
+          <Group justify="space-between" wrap="wrap">
+            <Group gap="sm" align="baseline">
+              <Title order={3}>Órbita</Title>
+              {eph && record && (
+                <Text fw={600} size="lg">
+                  {record.NORAD_CAT_ID} · {record.OBJECT_NAME}
+                </Text>
+              )}
+            </Group>
+            {eph && record && (
+              <Button variant="default" size="xs" leftSection={<IconDownload size={14} />} onClick={exportCsv}>
+                Baixar CSV
+              </Button>
+            )}
+          </Group>
           {!set && (
             <Alert variant="light">
               Carregue elementos orbitais primeiro, no módulo{' '}
@@ -188,14 +203,6 @@ export function OrbitPage() {
           )}
           {eph && record && (
             <>
-              <Group justify="space-between">
-                <Text fw={600}>
-                  {record.NORAD_CAT_ID} · {record.OBJECT_NAME}
-                </Text>
-                <Button variant="default" size="xs" leftSection={<IconDownload size={14} />} onClick={exportCsv}>
-                  Baixar CSV
-                </Button>
-              </Group>
               <SimpleGrid cols={{ base: 2, md: 3, xl: 6 }} spacing="xs">
                 {facts.map(([label, value]) => (
                   <Paper key={label} withBorder p="xs">

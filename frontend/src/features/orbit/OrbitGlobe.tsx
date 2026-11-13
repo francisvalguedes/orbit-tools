@@ -15,7 +15,7 @@ import {
   Viewer,
 } from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { EphemerisResponse, Site } from '../../api/types'
 import { categorical, chrome } from '../../charts/tokens'
 import { type BaseMap, baseMaps, imageryLayer, marker } from '../../globe/common'
@@ -27,11 +27,16 @@ interface Props {
   name: string
 }
 
+const MIN_HEIGHT = 500 // px; abaixo disso o globo fica pequeno demais para navegar
+
 const xyz = (x: (number | null)[], y: (number | null)[], z: (number | null)[]) =>
   x.flatMap((xi, i) => (xi == null || y[i] == null || z[i] == null ? [] : [new Cartesian3(xi, y[i]!, z[i]!)]))
 
 export default function OrbitGlobe({ eph, site, name }: Props) {
+  const block = useRef<HTMLDivElement>(null) // controles + globo: o que vai para a tela cheia
   const container = useRef<HTMLDivElement>(null)
+  const [fullscreen, setFullscreen] = useState(false)
+  const [fitHeight, setFitHeight] = useState(560)
   const viewerRef = useRef<Viewer | null>(null)
   const scheme = useComputedColorScheme('dark')
   const [baseMap, setBaseMap] = useState<BaseMap>(scheme === 'dark' ? 'dark' : 'osm')
@@ -52,7 +57,8 @@ export default function OrbitGlobe({ eph, site, name }: Props) {
       navigationHelpButton: false,
       animation: false,
       timeline: false,
-      fullscreenButton: false,
+      fullscreenButton: true,
+      fullscreenElement: block.current ?? undefined, // o padrão do Cesium é a página inteira
       infoBox: false,
       selectionIndicator: false,
     })
@@ -164,6 +170,23 @@ export default function OrbitGlobe({ eph, site, name }: Props) {
     setIndex(i)
   }
 
+  useEffect(() => {
+    const onChange = () => setFullscreen(document.fullscreenElement === block.current)
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
+  }, [])
+
+  // Fora da tela cheia, o globo ocupa a altura que sobra na janela abaixo dos controles
+  useLayoutEffect(() => {
+    const fit = () => {
+      const top = (container.current?.getBoundingClientRect().top ?? 0) + window.scrollY
+      setFitHeight(Math.max(MIN_HEIGHT, window.innerHeight - top - 16))
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [eph])
+
   const readout = [
     ['UTC', eph.time[index]?.replace('T', ' ')],
     ['Lat, lon', `${fmtDeg(eph.lat[index], 3)}, ${fmtDeg(eph.lon[index], 3)}`],
@@ -172,7 +195,11 @@ export default function OrbitGlobe({ eph, site, name }: Props) {
   ]
 
   return (
-    <Stack gap="xs">
+    <Stack
+      ref={block}
+      gap="xs"
+      style={fullscreen ? { height: '100vh', padding: 16, background: 'var(--mantine-color-body)' } : undefined}
+    >
       <Group justify="space-between" wrap="wrap">
         <Group gap="xs">
           <ActionIcon variant="filled" size="lg" onClick={() => setPlaying((p) => !p)} aria-label={playing ? 'Pausar' : 'Animar'}>
@@ -185,6 +212,7 @@ export default function OrbitGlobe({ eph, site, name }: Props) {
             onChange={(v) => setSpeed(v ?? '60')}
             data={['1', '10', '60', '300', '1200'].map((v) => ({ value: v, label: `${v}×` }))}
             allowDeselect={false}
+            comboboxProps={{ withinPortal: false }} // a lista fica dentro do bloco, que pode estar em tela cheia
           />
         </Group>
         <Text size="xs" c="dimmed">
@@ -208,7 +236,10 @@ export default function OrbitGlobe({ eph, site, name }: Props) {
           </Text>
         ))}
       </Group>
-      <div ref={container} style={{ height: 560, borderRadius: 8, overflow: 'hidden' }} />
+      <div
+        ref={container}
+        style={{ ...(fullscreen ? { flex: 1, minHeight: 0 } : { height: fitHeight }), borderRadius: 8, overflow: 'hidden' }}
+      />
     </Stack>
   )
 }
