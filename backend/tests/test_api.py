@@ -194,3 +194,12 @@ def test_frontend_index_not_cached(tmp_path):
         assert r.headers["cache-control"] == "no-cache"
     assert "cache-control" not in c.get("/assets/app-abc123.js").headers
     assert "cache-control" not in c.get("/favicon.svg").headers
+
+    # Monitores de disponibilidade usam HEAD: sem corpo, mas 200 (não 405)
+    for path in ("/", "/qualquer", "/assets/app-abc123.js"):
+        r = c.head(path)
+        assert r.status_code == 200 and r.content == b""
+
+
+def test_meta_head(client):
+    assert client.head("/api/meta").status_code == 200

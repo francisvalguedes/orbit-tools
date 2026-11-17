@@ -17,7 +17,7 @@ def _date(mjd: float | None) -> date | None:
     return None if mjd is None else _MJD0 + timedelta(days=int(mjd))
 
 
-@router.get("/meta", response_model=Meta)
+@router.api_route("/meta", methods=["GET", "HEAD"], response_model=Meta)  # HEAD: monitores de disponibilidade
 def meta() -> Meta:
     cat = catalog()
     eop = eop_source.current()

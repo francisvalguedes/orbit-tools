@@ -83,7 +83,9 @@ def mount_frontend(app: FastAPI, dist: Path) -> None:
     if (dist / "cesium").exists():
         app.mount("/cesium", StaticFiles(directory=dist / "cesium"), name="cesium")
 
-    @app.get("/{path:path}", include_in_schema=False)
+    # HEAD também: monitores de disponibilidade (ex.: UptimeRobot) verificam com HEAD, e o FastAPI não o
+    # acrescenta sozinho às rotas GET
+    @app.api_route("/{path:path}", methods=["GET", "HEAD"], include_in_schema=False)
     def spa(path: str) -> FileResponse:
         file = (dist / path).resolve()
         if path and file.is_file() and file.is_relative_to(dist.resolve()) and file != index.resolve():
