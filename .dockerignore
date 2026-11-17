@@ -1,0 +1,17 @@
+# Só o necessário para construir a imagem. A imagem é pública: nada de dados locais nem do Space-Track.
+.git
+.github
+**/node_modules
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+frontend/dist
+*.tar.gz
+dados/
+dados_teste/
+config/local/
+.env
+**/.env
+backend/tests
+docs

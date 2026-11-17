@@ -4,7 +4,7 @@
 
 Aplicação web de propagação de órbita, passagens sobre sensores, geração de trajetórias para rastreio e conversão de coordenadas. Unifica e substitui os apps [TrajectoryOrbitPropag](https://github.com/francisvalguedes/TrajectoryOrbitPropag) e [trajectory-coordinate-converter](https://github.com/francisvalguedes/trajectory-coordinate-converter).
 
-**Estado:** os quatro módulos funcionam; falta a distribuição (Docker) e o uso em paralelo com os apps antigos. Ver o [planejamento](docs/planejamento.md) e o [cálculo](docs/calculo.md).
+**Estado:** os quatro módulos funcionam e já podem ser implantados; falta o uso em paralelo com os apps antigos. Ver o [planejamento](docs/planejamento.md) e o [cálculo](docs/calculo.md).
 
 ## Módulos
 
@@ -14,6 +14,13 @@ Aplicação web de propagação de órbita, passagens sobre sensores, geração 
 | Passagens | Busca de passagens sobre um sensor, seleção dos objetos e geração de trajetórias (`.trn`, `.trj`, CSV) na taxa do sensor |
 | Órbita | Efemérides de um objeto em qualquer intervalo, órbita 3D e traço no solo |
 | Conversões | Geodésicas, ECEF, ENU, azimute/elevação/distância, graus/minutos/segundos, velocidade e aceleração |
+
+## Implantação
+
+Duas alternativas, ambas com um proxy reverso (nginx) na frente:
+
+- [Docker](docs/implantacao_docker.md): imagem pronta publicada no GitHub (`ghcr.io/francisvalguedes/orbit-tools`); o servidor só precisa do Docker.
+- [systemd](docs/implantacao_systemd.md): código e ambiente Python no servidor, com o frontend compilado pelo GitHub ou no próprio servidor.
 
 ## Desenvolvimento
 

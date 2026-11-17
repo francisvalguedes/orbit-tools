@@ -1,0 +1,16 @@
+# orbit-tools com Docker Compose. Guia: docs/implantacao_docker.md
+# Na pasta da instalação: compose.yaml, .env (opcional), config/ (locais e radares) e dados/ (do UID 10001).
+services:
+  orbit-tools:
+    # Versão: IMAGE_TAG no .env (main = último commit da main; ou uma versão, ex.: v0.2.0)
+    image: ghcr.io/francisvalguedes/orbit-tools:${IMAGE_TAG:-main}
+    restart: unless-stopped
+    # Só na própria máquina: o nginx publica na rede (ver docs/implantacao_systemd.md, seção nginx)
+    ports:
+      - "127.0.0.1:8010:8000"
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - ./dados:/data
+      - ./config:/config:ro
