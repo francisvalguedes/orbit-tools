@@ -37,7 +37,7 @@ ENV PATH=/app/.venv/bin:$PATH \
     ORBIT_SITES_CSV=/config/locais.csv \
     ORBIT_RADARS_CSV=/config/radares.csv
 
-# Usuário fixo (UID 10001): a pasta de dados no servidor precisa pertencer a ele
+# Usuário fixo (UID 10001): o volume de dados é criado com o dono de /data na imagem
 RUN useradd --system --uid 10001 --user-group --no-create-home orbit \
     && mkdir /data /config && chown orbit:orbit /data
 USER 10001:10001

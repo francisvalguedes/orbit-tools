@@ -1,5 +1,7 @@
 # orbit-tools com Docker Compose. Guia: docs/implantacao_docker.md
-# Na pasta da instalação: compose.yaml, .env (opcional), config/ (locais e radares) e dados/ (do UID 10001).
+# Na pasta da instalação: este arquivo e, opcionais, .env e config/ (locais e radares da instalação).
+name: orbit-tools
+
 services:
   orbit-tools:
     # Versão: IMAGE_TAG no .env (main = último commit da main; ou uma versão, ex.: v0.2.0)
@@ -12,5 +14,10 @@ services:
       - path: .env
         required: false
     volumes:
-      - ./dados:/data
-      - ./config:/config:ro
+      # Caches (EOP, SATCAT, Celestrak), conjuntos de elementos e ZIPs: volume do Docker, mantido nas atualizações
+      - dados:/data
+      # Locais e radares da instalação (locais.csv, radares.csv): descomente e crie a pasta config/
+      #- ./config:/config:ro
+
+volumes:
+  dados:
