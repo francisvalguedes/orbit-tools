@@ -6,7 +6,7 @@ Aplicação web de propagação de órbita, passagens sobre sensores, geração 
 
 **Estado:** os quatro módulos funcionam e já podem ser implantados; Ver o [planejamento](docs/planejamento.md) e o [cálculo](docs/calculo.md).
 
-![Módulo Órbita: a ISS no globo, com o traço no solo, a trajetória, a órbita no instante inicial e a linha de visada até um local de exemplo](figuras/orbita_iss.png)
+![Módulo Órbita: a ISS no globo, com o traço no solo, a trajetória, a órbita no instante inicial e a linha de visada até um local de exemplo](figuras/orbita_iss.jpg)
 
 *Módulo Órbita: a ISS no globo, com o traço no solo e a trajetória (azul), a órbita no instante inicial (laranja tracejada) e a linha de visada até um local de exemplo.*
 
