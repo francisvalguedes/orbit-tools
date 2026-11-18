@@ -26,8 +26,8 @@ Aplicação web de propagação de órbita, passagens sobre sensores, geração 
 Os módulos são as abas do topo. **Passagens** e **Órbita** trabalham sobre os elementos orbitais carregados em **Elementos**: comece por lá. **Conversões** é independente. Tudo o que você carrega e cadastra (elementos, locais, radares, seleções) fica guardado no seu navegador.
 
 1. **Elementos: carregar os objetos.** No painel à esquerda, escolha a fonte:
-   - **Celestrak** (público, sem conta): por NORAD_CAT_ID (ex.: `25544`, a ISS), grupo (ex.: `stations`), nome ou designador internacional;
-   - **Space-Track** (com a sua conta; a senha não é guardada): últimos elementos de uma lista, filtro LEO ou histórico;
+   - **Celestrak** (público, sem conta): um NORAD_CAT_ID (ex.: `25544`, a ISS);
+   - **Space-Track** (com a sua conta Space-Track; a senha não é guardada): últimos elementos de uma lista, filtro LEO ou histórico;
    - **Arquivo**: OMM (CSV, JSON, XML) ou TLE.
 
    A tabela mostra os objetos carregados. Marque **Juntar ao conjunto atual** para somar fontes ou comparar épocas na aba **Comparação**.
