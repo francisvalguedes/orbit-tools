@@ -4,7 +4,11 @@
 
 Aplicação web de propagação de órbita, passagens sobre sensores, geração de trajetórias para rastreio e conversão de coordenadas. Unifica e substitui os apps [TrajectoryOrbitPropag](https://github.com/francisvalguedes/TrajectoryOrbitPropag) e [trajectory-coordinate-converter](https://github.com/francisvalguedes/trajectory-coordinate-converter).
 
-**Estado:** os quatro módulos funcionam e já podem ser implantados; falta o uso em paralelo com os apps antigos. Ver o [planejamento](docs/planejamento.md) e o [cálculo](docs/calculo.md).
+**Estado:** os quatro módulos funcionam e já podem ser implantados; Ver o [planejamento](docs/planejamento.md) e o [cálculo](docs/calculo.md).
+
+![Módulo Órbita: a ISS no globo, com o traço no solo, a trajetória, a órbita no instante inicial e a linha de visada até um local de exemplo](figuras/orbita_iss.png)
+
+*Módulo Órbita: a ISS no globo, com o traço no solo e a trajetória (azul), a órbita no instante inicial (laranja tracejada) e a linha de visada até um local de exemplo.*
 
 ## Módulos
 
@@ -38,7 +42,7 @@ Um comando, sem instalar Python nem baixar o código.
    docker run --rm -p 8000:8000 ghcr.io/francisvalguedes/orbit-tools:main
    ```
 
-O `--rm` apaga o contêiner ao parar. Para usar a versão mais nova, rode antes `docker pull ghcr.io/francisvalguedes/orbit-tools:main`. Para deixar rodando como serviço, veja [Implantação com Docker](docs/implantacao_docker.md).
+O `--rm` apaga o contêiner ao parar se quiser manter remova o `--rm`. Se já utilisa e quer baixar a versão mais nova, rode `docker pull ghcr.io/francisvalguedes/orbit-tools:main`. Para deixar rodando como serviço, veja [Implantação com Docker](docs/implantacao_docker.md).
 
 ### Com o código (uv)
 
