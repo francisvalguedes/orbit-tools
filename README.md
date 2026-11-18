@@ -1,10 +1,12 @@
 # orbit-tools
 
-> **English.** orbit-tools is an open source web application for satellite orbit propagation (SGP4), sensor pass prediction, generation of tracking trajectories for radars, and coordinate conversions (geodetic, ECEF, ENU, azimuth/elevation/range). It fetches orbital elements from Celestrak or Space-Track, finds passes over a user-defined sensor, helps select which objects to track, and exports trajectory files at the sensor's sampling rate. Backend in Python (FastAPI, numpy, sgp4), frontend in React. The interface and documentation are in Portuguese. MIT license.
+**Em produção:** [orbittracking.duckdns.org](https://www.orbittracking.duckdns.org/), para usar direto no navegador, sem instalar nada.
+
+> **English.** Live instance: [orbittracking.duckdns.org](https://www.orbittracking.duckdns.org/). orbit-tools is an open source web application for satellite orbit propagation (SGP4), sensor pass prediction, generation of tracking trajectories for radars, and coordinate conversions (geodetic, ECEF, ENU, azimuth/elevation/range). It fetches orbital elements from Celestrak or Space-Track, finds passes over a user-defined sensor, helps select which objects to track, and exports trajectory files at the sensor's sampling rate. Backend in Python (FastAPI, numpy, sgp4), frontend in React. The interface and documentation are in Portuguese. MIT license.
 
 Aplicação web de propagação de órbita, passagens sobre sensores, geração de trajetórias para rastreio e conversão de coordenadas. Unifica e substitui os apps [TrajectoryOrbitPropag](https://github.com/francisvalguedes/TrajectoryOrbitPropag) e [trajectory-coordinate-converter](https://github.com/francisvalguedes/trajectory-coordinate-converter).
 
-**Estado:** os quatro módulos funcionam e já podem ser implantados; Ver o [planejamento](docs/planejamento.md) e o [cálculo](docs/calculo.md).
+**Estado:** os quatro módulos funcionam e já podem ser implantados. Ver o [planejamento](docs/planejamento.md) e o [cálculo](docs/calculo.md).
 
 ![Módulo Órbita: a ISS no globo, com o traço no solo, a trajetória, a órbita no instante inicial e a linha de visada até um local de exemplo](figuras/orbita_iss.jpg)
 
