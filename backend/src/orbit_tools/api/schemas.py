@@ -87,7 +87,7 @@ class SpaceTrackRequest(BaseModel):
     password: SecretStr  # nunca aparece em repr nem em log
     mode: Literal["latest", "leo", "history"]
     norad_ids: list[int] = Field(default_factory=list)
-    use_app_list: bool = False  # lista de ~200 objetos LEO do app antigo
+    use_app_list: bool = False  # lista de 197 objetos LEO (data/norad_ids_leo.csv)
     epoch_start: date | None = None
     epoch_end: date | None = None
 

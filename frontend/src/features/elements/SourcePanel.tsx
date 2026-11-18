@@ -218,7 +218,7 @@ export function SourcePanel() {
               />
               <Group justify="space-between">
                 <Checkbox
-                  label="Somar a lista do app (~220 LEO)"
+                  label="Somar a lista do app (197 LEO)"
                   checked={useAppList}
                   onChange={(e) => setUseAppList(e.currentTarget.checked)}
                 />

@@ -129,7 +129,7 @@ def test_spacetrack_validation(net, client):
     assert leo.status_code == 200 and leo.json()["not_found"] == []
     app_list = client.post("/api/elements/spacetrack", json={**base, "mode": "latest", "use_app_list": True})
     assert app_list.status_code == 200
-    assert len(app_list.json()["not_found"]) > 100  # a lista do app tem ~220 objetos; o mock só devolve a ISS
+    assert len(app_list.json()["not_found"]) > 100  # a lista do app tem 197 objetos; o mock só devolve a ISS
 
 
 def test_spacetrack_rate_limit(net, client, monkeypatch):
