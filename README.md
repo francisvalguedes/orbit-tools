@@ -15,7 +15,65 @@ Aplicação web de propagação de órbita, passagens sobre sensores, geração 
 | Órbita | Efemérides de um objeto em qualquer intervalo, órbita 3D e traço no solo |
 | Conversões | Geodésicas, ECEF, ENU, azimute/elevação/distância, graus/minutos/segundos, velocidade e aceleração |
 
-## Implantação
+## Teste local
+
+Duas formas de experimentar no próprio computador, sem servidor. As duas abrem em **http://localhost:8000** e param com Ctrl+C.
+
+### Com Docker (mais simples)
+
+Um comando, sem instalar Python nem baixar o código.
+
+1. Instale o Docker (uma vez):
+   - **Windows e macOS:** [Docker Desktop](https://www.docker.com/products/docker-desktop/). No Windows, ele usa o WSL 2, que o instalador ativa se preciso. Abra o Docker Desktop antes de usar o comando abaixo.
+   - **Linux:** o Docker Engine, pelo [guia da sua distribuição](https://docs.docker.com/engine/install/), ou pelo script oficial:
+
+     ```bash
+     curl -fsSL https://get.docker.com | sudo sh
+     sudo usermod -aG docker $USER      # usar o docker sem sudo (vale depois de sair e entrar de novo)
+     ```
+
+2. Rode o orbit-tools:
+
+   ```bash
+   docker run --rm -p 8000:8000 ghcr.io/francisvalguedes/orbit-tools:main
+   ```
+
+O `--rm` apaga o contêiner ao parar. Para usar a versão mais nova, rode antes `docker pull ghcr.io/francisvalguedes/orbit-tools:main`. Para deixar rodando como serviço, veja [Implantação com Docker](docs/implantacao_docker.md).
+
+### Com o código (uv)
+
+Sem Docker: o frontend vem já compilado do GitHub (sem precisar de Node) e o backend roda com o [uv](https://docs.astral.sh/uv/), que instala o Python sozinho.
+
+**Linux e macOS:**
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh      # uv (uma vez; depois abra um terminal novo)
+git clone -b main https://github.com/francisvalguedes/orbit-tools.git
+cd orbit-tools
+mkdir -p frontend/dist
+curl -fL https://github.com/francisvalguedes/orbit-tools/releases/download/build-main/dist.tar.gz | tar -xz -C frontend/dist
+cd backend
+uv sync --no-dev --extra server
+uv run --no-dev --extra server uvicorn orbit_tools.api.main:app --port 8000
+```
+
+**Windows (PowerShell):**
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"   # uv (uma vez; depois abra um terminal novo)
+git clone -b main https://github.com/francisvalguedes/orbit-tools.git
+cd orbit-tools
+mkdir frontend\dist
+curl.exe -fL -o dist.tar.gz https://github.com/francisvalguedes/orbit-tools/releases/download/build-main/dist.tar.gz
+tar -xzf dist.tar.gz -C frontend\dist
+cd backend
+uv sync --no-dev --extra server
+uv run --no-dev --extra server uvicorn orbit_tools.api.main:app --port 8000
+```
+
+Sem o `git`, baixe o ZIP da branch `main` pelo botão **Code** do GitHub. O frontend baixado é o da `main`: para atualizar, `git pull`, apague a pasta `frontend/dist` e repita o download.
+
+## Implantação em servidor
 
 Duas alternativas, ambas com um proxy reverso (nginx) na frente:
 
