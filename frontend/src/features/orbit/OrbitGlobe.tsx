@@ -1,15 +1,18 @@
 // Globo da órbita, carregado sob demanda (React.lazy): traz o Cesium.
 // Traço no solo, trajetória no referencial fixo (ECEF), órbita vista no instante inicial e o objeto
 // animado no tempo; com local, a linha de visada quando o objeto está acima do horizonte.
-import { ActionIcon, Group, SegmentedControl, Select, Slider, Stack, Text, useComputedColorScheme } from '@mantine/core'
-import { IconPlayerPauseFilled, IconPlayerPlayFilled } from '@tabler/icons-react'
+import { ActionIcon, Badge, Group, SegmentedControl, Select, Slider, Stack, Text, Tooltip, useComputedColorScheme } from '@mantine/core'
+import { IconClockPlay, IconPlayerPauseFilled, IconPlayerPlayFilled } from '@tabler/icons-react'
 import {
   CallbackProperty,
   Cartesian2,
   Cartesian3,
+  Cartographic,
   ClockRange,
   Color,
   JulianDate,
+  LagrangePolynomialApproximation,
+  Math as CesiumMath,
   PolylineDashMaterialProperty,
   SampledPositionProperty,
   Viewer,
@@ -43,6 +46,16 @@ export default function OrbitGlobe({ eph, site, name }: Props) {
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState('60')
   const [index, setIndex] = useState(0)
+  // Tempo real: relógio no instante atual do computador (UTC), a 1×. A posição e a hora mostradas seguem o
+  // relógio a cada segundo, em vez de saltar de amostra em amostra.
+  const [live, setLive] = useState(false)
+  const liveRef = useRef(false)
+  const [liveSec, setLiveSec] = useState(0) // instante atual do relógio, em s desde 1970
+  const sampledRef = useRef<SampledPositionProperty | null>(null)
+  const goLive = (on: boolean) => {
+    liveRef.current = on
+    setLive(on)
+  }
   const start = JulianDate.fromIso8601(`${eph.time[0]}Z`)
   const step = eph.t.length > 1 ? (eph.t[1] as number) : 1
 
@@ -110,6 +123,9 @@ export default function OrbitGlobe({ eph, site, name }: Props) {
     })
 
     const sampled = new SampledPositionProperty()
+    // Entre amostras, polinômio em vez de reta: com 30 s de passo, a reta corta ~1 km por dentro da órbita
+    sampled.setInterpolationOptions({ interpolationDegree: 5, interpolationAlgorithm: LagrangePolynomialApproximation })
+    sampledRef.current = sampled
     eph.time.forEach((iso, i) => {
       const x = eph.ecef_x[i]
       if (x != null) sampled.addSample(JulianDate.fromIso8601(`${iso}Z`), new Cartesian3(x, eph.ecef_y[i]!, eph.ecef_z[i]!))
@@ -144,12 +160,15 @@ export default function OrbitGlobe({ eph, site, name }: Props) {
     clock.currentTime = start.clone()
     const remove = clock.onTick.addEventListener((cl) => {
       setIndex(Math.min(eph.t.length - 1, Math.max(0, Math.round(JulianDate.secondsDifference(cl.currentTime, start) / step))))
+      if (liveRef.current) setLiveSec(Math.floor(JulianDate.toDate(cl.currentTime).getTime() / 1000))
       if (cl.shouldAnimate && JulianDate.compare(cl.currentTime, cl.stopTime) >= 0) {
         cl.shouldAnimate = false
         setPlaying(false)
+        goLive(false)
       }
     })
     void viewer.zoomTo(viewer.entities)
+    goLive(false)
     return () => remove()
     // start é derivado de eph
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -166,6 +185,7 @@ export default function OrbitGlobe({ eph, site, name }: Props) {
     const viewer = viewerRef.current
     if (!viewer) return
     setPlaying(false)
+    goLive(false)
     viewer.clock.currentTime = JulianDate.fromIso8601(`${eph.time[i]}Z`)
     setIndex(i)
   }
@@ -187,10 +207,29 @@ export default function OrbitGlobe({ eph, site, name }: Props) {
     return () => window.removeEventListener('resize', fit)
   }, [eph])
 
+  // O intervalo calculado inclui o instante atual?
+  const startMs = Date.parse(`${eph.time[0]}Z`)
+  const stopMs = Date.parse(`${eph.time[eph.time.length - 1]}Z`)
+  const nowInRange = Date.now() >= startMs && Date.now() < stopMs
+
+  const startLive = () => {
+    const viewer = viewerRef.current
+    if (!viewer || !(Date.now() >= startMs && Date.now() < stopMs)) return
+    viewer.clock.currentTime = JulianDate.now()
+    setSpeed('1')
+    setPlaying(true)
+    goLive(true)
+  }
+
+  // Ao vivo: hora e posição no instante do relógio (polinômio entre amostras); az/el da amostra mais próxima
+  const livePos = live ? sampledRef.current?.getValue(JulianDate.fromDate(new Date(liveSec * 1000))) : undefined
+  const liveGeo = livePos ? Cartographic.fromCartesian(livePos) : undefined
   const readout = [
-    ['UTC', eph.time[index]?.replace('T', ' ')],
-    ['Lat, lon', `${fmtDeg(eph.lat[index], 3)}, ${fmtDeg(eph.lon[index], 3)}`],
-    ['Altura', fmtLength(eph.height[index])],
+    ['UTC', live ? new Date(liveSec * 1000).toISOString().slice(0, 19).replace('T', ' ') : eph.time[index]?.replace('T', ' ')],
+    liveGeo
+      ? ['Lat, lon', `${fmtDeg(CesiumMath.toDegrees(liveGeo.latitude), 3)}, ${fmtDeg(CesiumMath.toDegrees(liveGeo.longitude), 3)}`]
+      : ['Lat, lon', `${fmtDeg(eph.lat[index], 3)}, ${fmtDeg(eph.lon[index], 3)}`],
+    ['Altura', fmtLength(liveGeo ? liveGeo.height : eph.height[index])],
     ...(eph.el ? [['Az, el', `${fmtDeg(eph.az?.[index], 1)}, ${fmtDeg(eph.el[index], 1)}`], ['Distância', fmtLength(eph.range?.[index])]] : []),
   ]
 
@@ -202,18 +241,47 @@ export default function OrbitGlobe({ eph, site, name }: Props) {
     >
       <Group justify="space-between" wrap="wrap">
         <Group gap="xs">
-          <ActionIcon variant="filled" size="lg" onClick={() => setPlaying((p) => !p)} aria-label={playing ? 'Pausar' : 'Animar'}>
+          <ActionIcon
+            variant="filled"
+            size="lg"
+            onClick={() => {
+              if (playing) goLive(false)
+              setPlaying((p) => !p)
+            }}
+            aria-label={playing ? 'Pausar' : 'Animar'}
+          >
             {playing ? <IconPlayerPauseFilled size={16} /> : <IconPlayerPlayFilled size={16} />}
           </ActionIcon>
           <Select
             size="xs"
             w={110}
             value={speed}
-            onChange={(v) => setSpeed(v ?? '60')}
+            onChange={(v) => {
+              setSpeed(v ?? '60')
+              goLive(false)
+            }}
             data={['1', '10', '60', '300', '1200'].map((v) => ({ value: v, label: `${v}×` }))}
             allowDeselect={false}
             comboboxProps={{ withinPortal: false }} // a lista fica dentro do bloco, que pode estar em tela cheia
           />
+          <Tooltip
+            label={
+              nowInRange
+                ? 'Tempo real: hora atual deste computador (UTC), a 1×'
+                : 'O intervalo calculado não inclui a hora atual: calcule a partir de agora'
+            }
+            withinPortal={false}
+          >
+            {/* data-disabled em vez de disabled: botão desabilitado não recebe o mouse e a dica não apareceria */}
+            <ActionIcon variant="default" size="lg" onClick={startLive} data-disabled={!nowInRange || undefined} aria-label="Tempo real">
+              <IconClockPlay size={18} />
+            </ActionIcon>
+          </Tooltip>
+          {live && (
+            <Badge color="red" variant="dot" size="sm">
+              ao vivo
+            </Badge>
+          )}
         </Group>
         <Text size="xs" c="dimmed">
           Linha cheia: traço no solo e trajetória (referencial fixo). Tracejada: a órbita vista no instante inicial.
