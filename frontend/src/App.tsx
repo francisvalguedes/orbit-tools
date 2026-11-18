@@ -19,6 +19,12 @@ import { ErrorBoundary } from './features/ErrorBoundary'
 import { ConvertPage, ElementsPage, OrbitPage, PassesPage } from './features/pages'
 import { MODULES, type ModuleId, useModule } from './modules'
 
+// Commit e horário do build do frontend (vite.config.ts): identificam a versão instalada durante os testes,
+// em que o número da versão não muda
+const COMMIT = __BUILD_COMMIT__
+const COMMIT_URL = COMMIT ? `https://github.com/francisvalguedes/orbit-tools/commit/${COMMIT}` : undefined
+const BUILD_TIME = `${__BUILD_TIME__.slice(0, 16).replace('T', ' ')} UTC`
+
 const PAGES: Record<ModuleId, () => React.JSX.Element> = {
   elementos: ElementsPage,
   passagens: PassesPage,
@@ -89,8 +95,23 @@ export default function App() {
           />
 
           <Group gap="xs" wrap="nowrap">
-            <Tooltip label={meta.isError ? 'Backend indisponível' : 'Backend conectado'}>
+            <Tooltip
+              multiline
+              label={
+                <>
+                  {meta.isError ? 'Backend indisponível' : 'Backend conectado'}
+                  <br />
+                  {COMMIT ? `Commit ${COMMIT.slice(0, 7)}, build de ${BUILD_TIME}` : `Build de ${BUILD_TIME}`}
+                </>
+              }
+            >
               <Badge
+                component="a"
+                href={COMMIT_URL}
+                target="_blank"
+                rel="noreferrer"
+                style={{ cursor: COMMIT_URL ? 'pointer' : 'default' }}
+                tt="none" // hash em minúsculas, como no git
                 variant="dot"
                 color={meta.isError ? 'red' : meta.data ? 'teal' : 'gray'}
                 size="lg"
@@ -98,6 +119,7 @@ export default function App() {
                 visibleFrom="sm"
               >
                 {meta.data ? `v${meta.data.version}` : 'API'}
+                {COMMIT && ` · ${COMMIT.slice(0, 7)}`}
               </Badge>
             </Tooltip>
             <ActionIcon

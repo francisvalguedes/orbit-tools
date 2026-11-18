@@ -8,7 +8,9 @@ WORKDIR /src/frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci
 COPY frontend/ ./
-RUN npm run build
+# Commit mostrado no selo da versão (a pasta .git não entra na imagem): passado pelo workflow docker.yml
+ARG GIT_COMMIT=""
+RUN GIT_COMMIT=$GIT_COMMIT npm run build
 
 
 FROM python:3.12-slim-trixie
