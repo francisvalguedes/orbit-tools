@@ -21,6 +21,29 @@ Aplicação web de propagação de órbita, passagens sobre sensores, geração 
 | Órbita | Efemérides de um objeto em qualquer intervalo, órbita 3D e traço no solo |
 | Conversões | Geodésicas, ECEF, ENU, azimute/elevação/distância, graus/minutos/segundos, velocidade e aceleração |
 
+## Como usar
+
+Os módulos são as abas do topo. **Passagens** e **Órbita** trabalham sobre os elementos orbitais carregados em **Elementos**: comece por lá. **Conversões** é independente. Tudo o que você carrega e cadastra (elementos, locais, radares, seleções) fica guardado no seu navegador.
+
+1. **Elementos: carregar os objetos.** No painel à esquerda, escolha a fonte:
+   - **Celestrak** (público, sem conta): por NORAD_CAT_ID (ex.: `25544`, a ISS), grupo (ex.: `stations`), nome ou designador internacional;
+   - **Space-Track** (com a sua conta; a senha não é guardada): últimos elementos de uma lista, filtro LEO ou histórico;
+   - **Arquivo**: OMM (CSV, JSON, XML) ou TLE.
+
+   A tabela mostra os objetos carregados. Marque **Juntar ao conjunto atual** para somar fontes ou comparar épocas na aba **Comparação**.
+2. **Órbita: ver a órbita de um objeto.** Escolha o objeto, o início (padrão: agora), a duração e o passo, e clique em **Calcular efemérides**. Com um **local**, aparecem também azimute, elevação e distância.
+   - **Globo:** traço no solo, trajetória e órbita. Use ▶ para animar, o relógio para acompanhar em tempo real e o canto do globo para tela cheia.
+   - **Gráficos** e **Tabela:** os valores ao longo do tempo; **Baixar CSV** exporta tudo.
+3. **Passagens: quando os objetos passam sobre um sensor.**
+   1. Escolha o **local do sensor** (cadastre os seus em **Locais**), a janela de busca e as distâncias máxima e mínima; um **radar** (em **Radares**) é opcional e acrescenta a margem de detecção.
+   2. Clique em **Buscar passagens**.
+   3. Selecione as passagens na **Tabela**, na **Linha do tempo** ou pelas **Regras de seleção**; passagens que se sobrepõem aparecem em vermelho, e **Resolver conflitos** escolhe entre elas.
+   4. A aba **Passagem** mostra o detalhe de cada uma (céu do sensor, taxas, globo), com ◀ ▶ para percorrer as selecionadas.
+   5. Em **Gerar arquivos**, baixe o ZIP das selecionadas: `.trn`, `.trj` e CSV a 1 Hz e o `.trn` na taxa de amostragem do radar.
+4. **Conversões: coordenadas avulsas.** Converte pontos entre geodésicas, ECEF, ENU e azimute/elevação/distância; graus, minutos e segundos; e calcula velocidade e aceleração de uma trajetória. Não precisa de elementos.
+
+Se um módulo travar com um erro em vermelho, o botão **Limpar dados deste módulo** apaga o que ele guardou no navegador (locais e radares ficam).
+
 ## Teste local
 
 Duas formas de experimentar no próprio computador, sem servidor. As duas abrem em **http://localhost:8000** e param com Ctrl+C.
