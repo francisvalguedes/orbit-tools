@@ -152,7 +152,9 @@ sudo -H -u mirante ./scripts/install-release.sh build-main     # com proxy: --pr
 sudo systemctl restart orbit-tools
 ```
 
-O script deixa o repositório fora de branch: não use `git pull`. Se ele disser que o frontend é de outro commit, aguarde o GitHub Actions terminar.
+O script deixa o repositório na branch `main`, igual à do GitHub. Atualize sempre por ele: um `git pull` à mão só traz o código, sem o frontend compilado e o ambiente Python (o próprio git avisa disso depois do `pull`), e só avança, nunca mescla. Se o script disser que o frontend é de outro commit, aguarde o GitHub Actions terminar.
+
+Na primeira atualização depois desta mudança, rode o script duas vezes: a primeira ainda usa o script antigo, que deixa o repositório fora de branch.
 
 **B. Compilando no servidor:**
 
@@ -175,7 +177,9 @@ Log: `sudo journalctl -u orbit-tools` (sem `sudo`, aparece vazio).
 | `ModuleNotFoundError: fastapi` | `uv sync` sem `--extra server` |
 | `vite build` com `Illegal instruction` | Processador sem AVX: use o jeito A |
 | Script falha ao baixar do GitHub | Proxy sem `--preserve-env` no `sudo` |
-| `git pull`: "You are not currently on a branch" | Instalação pelo script: atualize com o script |
+| `git pull`: "You are not currently on a branch" | Instalação por tag, ou por uma versão antiga do script: atualize com o script |
+| Script: "a branch main deste servidor tem commits que não estão no GitHub" | Alguém fez commit no servidor: veja com `git log origin/main..main` e descarte (`git reset --hard origin/main`) ou leve para o GitHub |
+| `git pull`: "Not possible to fast-forward" | Mesma causa da linha acima |
 | Erro 500, `Read-only file system` no log | Serviço instalado desatualizado ou `dados/` fora do `ReadWritePaths` |
 | Erro 500, `PermissionError` no log | `dados/` de outro dono: `sudo chown -R mirante: /opt/orbit-tools/dados` |
 | "Celestrak indisponível" ou "Space-Track indisponível" | Sem internet ou proxy fora do `orbit-tools.env` |

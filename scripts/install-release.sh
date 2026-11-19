@@ -2,9 +2,10 @@
 # Instala uma versão no servidor: código, ambiente Python e o frontend compilado baixado do GitHub Release.
 # Não compila nada, então serve para servidores sem Node ou sem AVX.
 #
-#   vX.Y.Z      código da tag e o dist.tar.gz do release da tag
+#   vX.Y.Z      código da tag e o dist.tar.gz do release da tag (repositório fora de branch, na tag)
 #   build-main  código do último commit da main e o dist.tar.gz que o GitHub Actions compila a cada push
-#               (.github/workflows/frontend-build.yml); a tag build-main não acompanha a main
+#               (.github/workflows/frontend-build.yml); a tag build-main não acompanha a main. O repositório
+#               fica na branch main, igual à do GitHub
 #
 # Rodar como o dono do repositório no servidor e depois reiniciar o serviço:
 #   sudo -H -u <usuário> /caminho/do/repositorio/scripts/install-release.sh v0.2.0
@@ -57,7 +58,32 @@ main() {
   fi
   cd ..
 
-  git -c advice.detachedHead=false checkout --detach "$commit"
+  if [ "$tag" = build-main ]; then
+    # Na branch main, sempre igual à do GitHub. Só avança: com commits locais que não estão no GitHub, para
+    # aqui, antes de trocar o código, sem descartar nada.
+    if git rev-parse -q --verify refs/heads/main >/dev/null && ! git merge-base --is-ancestor main "$commit"; then
+      echo "a branch main deste servidor tem commits que não estão no GitHub (git log origin/main..main);" \
+        "resolva antes de atualizar" >&2
+      exit 1
+    fi
+    git checkout -q -B main "$commit"
+    git branch -q --set-upstream-to=origin/main main
+  else
+    # Tag: ponto fixo, fora de branch
+    git -c advice.detachedHead=false checkout --detach "$commit"
+  fi
+  # git pull à mão: só avanço simples (nunca mescla nem cria conflito) e um aviso de que ele não basta
+  git config pull.ff only
+  local hook
+  hook=$(git rev-parse --git-path hooks)/post-merge
+  cat > "$hook" <<EOF
+#!/bin/sh
+# Instalado por scripts/install-release.sh
+echo "Atenção: o git pull só atualizou o código; o frontend compilado e o ambiente Python continuam os antigos." >&2
+echo "Para atualizar o app: sudo --preserve-env=HTTPS_PROXY,https_proxy,HTTP_PROXY,http_proxy,NO_PROXY,no_proxy -H -u $(id -un) ./scripts/install-release.sh build-main && sudo systemctl restart orbit-tools" >&2
+EOF
+  chmod +x "$hook"
+
   (cd backend && uv sync --frozen --no-dev --extra server)
 
   cd frontend
